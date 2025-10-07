@@ -26,7 +26,28 @@ We jointly visualize the attention maps of EP<sub>8</sub>. An emerging property 
 
 Dependencies are listed in `requirements.txt`.
 
-## Integration
+## Integration (drop-in EP)
+
+Use Efficient Probing (EP) as a lightweight attentive pooling over patch tokens from a frozen backbone (e.g., ViT). EP learns a small set of queries, attends to tokens with a single key projection, uses identity values (no V/O projections), and averages per-query outputs into one descriptor. It returns both the pooled descriptor and interpretable attention maps.
+
+```python
+# ---- Minimal integration example ----
+# In your model.__init__:
+#   self.ep = EfficientProbing(dim=embed_dim, num_queries=32)  # EP_32
+
+# In your model.forward(...):
+#   # 'tokens' are the outputs of a FROZEN backbone (e.g., ViT):
+#   # shape (B, 1+N, D) if a [CLS] token exists, else (B, N, D)
+#
+#   # Use only patch tokens (default in our paper/code):
+#   patch_tokens = tokens[:, 1:, :]          # or 'tokens' if you have no [CLS]
+#
+#   # Optional: include [CLS] among the values by passing all tokens:
+#   # patch_tokens = tokens                    # uncomment to include [CLS]
+#
+#   pooled, attn = self.ep(patch_tokens)     # pooled: (B, D), attn: (B, Q, N)
+#   logits = self.head(pooled)               # your classifier head
+```
 
 ## Experiments
 
