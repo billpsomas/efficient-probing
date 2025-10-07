@@ -1,4 +1,4 @@
-# Attention, Please! Revisiting Attentive Probing for Masked Image Modeling
+# Attention, Please! Revisiting Attentive Probing Through the Lens of Efficiency
 
 Official PyTorch implementation and pretrained attentive heads for Efficient Probing. [[`arXiv`](https://arxiv.org/pdf/2506.10178)]
 
