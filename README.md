@@ -50,14 +50,15 @@ from poolings.ep import EfficientProbing
    logits = self.head(pooled)               # your classifier head
 ```
 
-Notes
-	•	Freeze the backbone; train only `EfficientProbing` and your classification head.
-	•	`num_queries` controls speed/accuracy (e.g., 8, 16, 32). EP averages across queries, so the output stays (B, D).
-	•	Inputs & shapes: tokens are (B, N, D) or (B, 1+N, D) if a [CLS] token exists.
-	•	Default usage: pass patch tokens only (tokens[:, 1:, :] when [CLS] is present).
-	•	To include [CLS] among values, pass all tokens instead.
-	•	Outputs: pooled is (B, D) for your head; (optional) attn is (B, Q, N) for visualization/analysis.
-	•	Repro tip: set seeds to make the learned query initialization reproducible.
+### Notes
+
+- **Freeze the backbone**; train only `EfficientProbing` and your classification head.
+- `num_queries` controls speed/accuracy (e.g., 8, 16, 32). EP averages across queries, so the output stays `(B, D)`.
+- **Inputs & shapes:** `tokens` are `(B, N, D)` or `(B, 1+N, D)` if a `[CLS]` token exists.
+- **Default usage:** pass patch tokens only (`tokens[:, 1:, :]` when `[CLS]` is present).
+- To include `[CLS]` among values, pass **all tokens** instead.
+- **Outputs:** `pooled` is `(B, D)` for your head; optional `attn` is `(B, Q, N)` for visualization/analysis.
+- **Repro tip:** set seeds to make the learned query initialization reproducible.
 
 ## Experiments
 
