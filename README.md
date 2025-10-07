@@ -2,10 +2,10 @@
 
 Official PyTorch implementation and pretrained attentive heads for Efficient Probing. [[`arXiv`](https://arxiv.org/pdf/2506.10178)]
 
-**TL;DR:** We introduce efficient probing (EP), a lightweight multi-query cross-attention mechanism that accelerates and improves accuracy of frozen pretrained models while yielding more interpretable attention maps.
+**TL;DR:** We introduce efficient probing (EP), a lightweight multi-query cross-attention mechanism that improves accuracy of frozen pretrained models while yielding more interpretable attention maps.
 
 <p align="center">
-<img width="100%" alt="EP illustration" src=".github/ep.png">
+<img width="75%" alt="EP illustration" src=".github/ep.png">
 </p>
 
 ## Overview
