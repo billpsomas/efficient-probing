@@ -2,7 +2,7 @@
 
 Official PyTorch implementation and pretrained attentive heads for Efficient Probing. [[`arXiv`](https://arxiv.org/pdf/2506.10178)]
 
-**TL;DR:** We introduce efficient probing (EP), a simplified multi-query cross-attention mechanism, enhancing evaluation of self-supervised learning models by improving speed, performance, and interpretability.
+**TL;DR:** We introduce efficient probing (EP), a lightweight multi-query cross-attention mechanism that accelerates and improves accuracy of frozen pretrained models while yielding more interpretable attention maps.
 
 <p align="center">
 <img width="100%" alt="EP illustration" src=".github/ep.png">
@@ -10,11 +10,17 @@ Official PyTorch implementation and pretrained attentive heads for Efficient Pro
 
 ## Overview
 
-As fine-tuning (FT) becomes increasingly impractical at scale, probing is emerging as the preferred evaluation protocol for self-supervised learning (SSL). Yet, the standard linear probing (LP) fails to adequately reflect the potential of models trained with Masked Image Modeling (MIM), due to the distributed nature of patch tokens. This motivates the need for attentive probing, an alternative that uses attention to selectively aggregate patch-level features. Despite its growing adoption, attentive probing remains under-explored, with existing methods suffering from excessive parameterization and poor computational efficiency. 
+As fine-tuning becomes increasingly impractical at scale, probing is emerging as the preferred evaluation protocol. Yet, the standard linear probing fails to adequately reflect the potential of models whose pre-training optimizes representations of patch tokens rather than an explicit global representation. This motivates the need for attentive probing, an alternative that uses attention to selectively aggregate patch-level features. Despite its growing adoption, attentive probing remains under-explored, with existing methods suffering from excessive parameterization and poor computational efficiency. 
 
-In this work, we revisit attentive probing through the lens of the accuracy-efficiency trade-off. We conduct a systematic study of existing methods, analyzing their mechanisms and benchmarking their performance. We introduce efficient probing (EP), a multi-query cross-attention mechanism that eliminates redundant projections, reduces the number of trainable parameters, and achieves up to a 10 $\times$ speed-up over conventional multi-head attention. 
+In this work, we revisit attentive probing through the lens of the accuracy vs. parameter efficiency trade-off. We present the first comprehensive study of existing methods, analyzing their design choices and benchmarking their performance. Building on this, we propose efficient probing (EP), a simple yet effective multi-query cross-attention mechanism that eliminates redundant projections and reduces the number of trainable parameters. Despite its simplicity, EP outperforms linear probing and prior attentive probing approaches across seven benchmarks, generalizes well to diverse pre-training paradigms, and delivers strong low-shot and layer-wise gains. Beyond evaluation, our analysis uncovers emerging properties of EP, such as complementary attention maps, which open new directions for leveraging probing beyond protocol design.
 
-Despite its simplicity, EP outperforms LP and prior attentive probing approaches across seven benchmarks, generalizes well beyond MIM to diverse pre-training paradigms, produces interpretable attention maps, and achieves strong gains in low-shot and layer-wise settings.
+## Emerging Properties
+
+We jointly visualize the attention maps of EP_8. An emerging property of EP is that its queries specialize in different object regions, yielding complementary and interpretable attention patterns. Queries consistently attend to distinct parts, producing stable semantic correspondences (e.g., tails, beaks, feet) across images and a structured decomposition of visual cues.
+
+<p align="center">
+<img width="100%" alt="EP illustration" src=".github/ep8_queries.png">
+</p>
 
 ## Environment
 
