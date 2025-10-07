@@ -16,7 +16,7 @@ In this work, we revisit attentive probing through the lens of the accuracy vs. 
 
 ## Emerging Properties
 
-We jointly visualize the attention maps of EP_8. An emerging property of EP is that its queries specialize in different object regions, yielding complementary and interpretable attention patterns. Queries consistently attend to distinct parts, producing stable semantic correspondences (e.g., tails, beaks, feet) across images and a structured decomposition of visual cues.
+We jointly visualize the attention maps of EP<sub>8</sub>. An emerging property of EP is that its queries specialize in different object regions, yielding complementary and interpretable attention patterns. Queries consistently attend to distinct parts, producing stable semantic correspondences (e.g., tails, beaks, feet) across images and a structured decomposition of visual cues.
 
 <p align="center">
 <img width="100%" alt="EP illustration" src=".github/ep8_queries.png">
@@ -100,7 +100,7 @@ This repository is released under the Apache 2.0 license as found in the [LICENS
 If you find this repository useful, please consider giving a star 🌟 and citation:
 ```
 @misc{psomas2025attentionpleaserevisitingattentive,
-      title={Attention, Please! Revisiting Attentive Probing for Masked Image Modeling}, 
+      title={Attention, Please! Revisiting Attentive Probing Through the Lens of Efficiency}, 
       author={Bill Psomas and Dionysis Christopoulos and Eirini Baltzi and Ioannis Kakogeorgiou and Tilemachos Aravanis and Nikos Komodakis and Konstantinos Karantzalos and Yannis Avrithis and Giorgos Tolias},
       year={2025},
       eprint={2506.10178},
