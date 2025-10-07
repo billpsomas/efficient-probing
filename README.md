@@ -131,7 +131,7 @@ This repository is released under the Apache 2.0 license as found in the [LICENS
 
 If you find this repository useful, please consider giving a star 🌟 and citation:
 ```
-@misc{psomas2025attentionpleaserevisitingattentive,
+@misc{psomas2025efficientprobing,
       title={Attention, Please! Revisiting Attentive Probing Through the Lens of Efficiency}, 
       author={Bill Psomas and Dionysis Christopoulos and Eirini Baltzi and Ioannis Kakogeorgiou and Tilemachos Aravanis and Nikos Komodakis and Konstantinos Karantzalos and Yannis Avrithis and Giorgos Tolias},
       year={2025},
