@@ -1,8 +1,24 @@
-# Attention, Please! Revisiting Attentive Probing Through the Lens of Efficiency
+<div align="center">
+<h1>Attention, Please! Revisiting Attentive Probing Through the Lens of Efficiency</h1>
 
-Official PyTorch implementation and pretrained attentive heads for Efficient Probing. [[`arXiv`](https://arxiv.org/pdf/2506.10178)]
+**Bill Psomas<sup>1</sup>†, Dionysis Christopoulos<sup>2</sup>†, Eirini Baltzi<sup>2</sup>, Ioannis Kakogeorgiou<sup>6</sup>**  
+**Tilemachos Aravanis<sup>1</sup>, Nikos Komodakis<sup>3,4,5</sup>, Konstantinos Karantzalos<sup>2</sup>, Yannis Avrithis, Giorgos Tolias<sup>1</sup>**
 
-**TL;DR:** We introduce efficient probing (EP), a lightweight multi-query cross-attention mechanism that improves accuracy of frozen pretrained models while yielding more interpretable attention maps.
+<sup>1</sup>Visual Recognition Group, FEE, Czech Technical University in Prague <sup>2</sup>National Technical University of Athens
+<sup>3</sup>University of Crete <sup>4</sup>Archimedes, Athena RC <sup>5</sup>ACM-FORTH <sup>6</sup>IIT, NCSR “Demokritos”
+
+[![Project Page](https://img.shields.io/badge/-Project_Page-green.svg?colorA=333&logo=html5)](https://vrg.fel.cvut.cz/ep/)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Paper-yellow)](https://huggingface.co/papers/2506.10178)
+[![arXiv](https://img.shields.io/badge/arXiv-2510.25387-b31b1b.svg)](https://arxiv.org/abs/2506.10178)
+[![OpenReview](https://img.shields.io/badge/OpenReview-Paper-yellow.svg)](https://openreview.net/pdf?id=PXo0gtT7Al)
+[![Code License: MIT](https://img.shields.io/badge/Code%20License-MIT-lightgray.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-lightgray.svg)](#)
+
+</div>
+
+Official PyTorch implementation and benchmark results for Efficient Probing.
+
+**TL;DR:** We introduce efficient probing (EP), a lightweight multi-query cross-attention mechanism that improves accuracy of frozen pretrained models while yielding interpretable attention maps.
 
 <p align="center">
 <img width="75%" alt="EP illustration" src=".github/ep.png">
@@ -131,13 +147,12 @@ This repository is released under the Apache 2.0 license as found in the [LICENS
 
 If you find this repository useful, please consider giving a star 🌟 and citation:
 ```
-@misc{psomas2025efficientprobing,
-      title={Attention, Please! Revisiting Attentive Probing Through the Lens of Efficiency}, 
-      author={Bill Psomas and Dionysis Christopoulos and Eirini Baltzi and Ioannis Kakogeorgiou and Tilemachos Aravanis and Nikos Komodakis and Konstantinos Karantzalos and Yannis Avrithis and Giorgos Tolias},
-      year={2025},
-      eprint={2506.10178},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2506.10178}, 
+@inproceedings{
+psomas2026attention,
+title={Attention, Please! Revisiting Attentive Probing Through the Lens of Efficiency},
+author={Bill Psomas and Dionysis Christopoulos and Eirini Baltzi and Ioannis Kakogeorgiou and Tilemachos Aravanis and Nikos Komodakis and Konstantinos Karantzalos and Yannis Avrithis and Giorgos Tolias},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=PXo0gtT7Al}
 }
 ```
