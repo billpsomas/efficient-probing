@@ -12,7 +12,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2510.25387-b31b1b.svg)](https://arxiv.org/abs/2506.10178)
 [![OpenReview](https://img.shields.io/badge/OpenReview-Paper-yellow.svg)](https://openreview.net/pdf?id=PXo0gtT7Al)
 [![Code License: MIT](https://img.shields.io/badge/Code%20License-MIT-lightgray.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.9%2B-lightgray.svg)](#)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-lightgray.svg)](#)
 
 </div>
 
