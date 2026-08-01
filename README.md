@@ -54,19 +54,25 @@ This table is meant to grow. If you evaluate a backbone we have not covered, ple
 | | DINOv3 | ViT-L/16 | LVD-1689M | IN-1K | 86.6 | **87.1** |
 | **VLM** | CLIP | ViT-L/16 | WIT | IN-1K | 82.3 | **83.4** |
 | | SigLIP | ViT-L/16 | WebLI | IN-1K | 84.1<sup>‡</sup> | **86.1** |
-| | SigLIP | ViT-L/16 | WebLI | IN-1K | 85.2<sup>‡</sup> | **87.0** |
+| | SigLIP2 | ViT-L/16 | WebLI | IN-1K | 85.2<sup>‡</sup> | **87.0** |
 | **GEN** | DiT | DiT-XL/2 | IN-1K | IN-1K | 32.7<sup>‡</sup> | **57.0** |
 | | AIMv2 | ViT-L/14 | custom | IN-1K | 84.8<sup>‡</sup> | **85.9** |
 
-<sup>‡</sup> See the paper for the meaning of this marker.
-
 Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectures · **Hybrid** MIM + JEA · **VLM** vision-language models · **GEN** generative models.
+
+**Notes.**
+
+- All numbers are top-1 accuracy at the **best epoch**, not the final one.
+- **EP** is the best result over a sweep of query counts *Q* (EP<sub>Q</sub> in the paper). The best *Q* is **not constant across backbones** — it is usually 32, but larger values win for some (e.g. 128 for DiT). Compare rows with this in mind.
+- For the **Hybrid** methods, both `--cls_features ep` (patch tokens) and `--cls_features ep_all` (patch + `[CLS]`) were evaluated and the better one is reported, which is `ep_all`. Other rows use `ep`.
+- **LP** is the better of the `[CLS]` token (`--cls_features cls`) and global average pooling over patch tokens (`--cls_features pos`). <sup>‡</sup> marks rows where GAP was used, either because the encoder has no `[CLS]` token (DiT, AIMv2) or because it already applies an attention pooling of its own (SigLIP, SigLIP2), making its pooled output an unfair stand-in for `[CLS]`.
 
 ### Contributing a row
 
 1. Run LP and EP on your backbone (see [Experiments](#experiments)). Keep the protocol fixed: 90 epochs, LARS, `--blr 0.1`, effective batch size 4096.
-2. Report LP as the better of `--cls_features cls` and `--cls_features pos`, and EP with `--cls_features ep`.
-3. Add a row with the `--ep_queries` value you used, and open a PR linking the training log.
+2. **LP** — report the better of `--cls_features cls` and `--cls_features pos`. If the encoder has no usable `[CLS]`, use `pos` and mark the value with <sup>‡</sup>.
+3. **EP** — sweep `--ep_queries` (32 is a good starting point; try 8/16/64/128 too) and report the best. Also try `--cls_features ep_all` alongside `ep`, and report whichever wins.
+4. Report the **best-epoch** accuracy, and open a PR stating the winning *Q* and whether it came from `ep` or `ep_all`, with a link to the training log.
 
 ## Emerging Properties
 
