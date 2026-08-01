@@ -36,7 +36,7 @@ Top-1 accuracy of linear probing (**LP**) vs. efficient probing (**EP**) on froz
 
 This table is meant to grow. If you evaluate a backbone we have not covered, please open a pull request adding a row — see [Contributing a row](#contributing-a-row).
 
-| | Method | Arch. | Pre-tr. | Dataset | LP | EP |
+| | Method | Arch. | Pre-training | Evaluation | LP | EP |
 |---|---|---|---|---|---:|---:|
 | **MIM** | MAE | ViT-S/16 | IN-1K | IN-1K | 47.4 | **64.6** |
 | | MAE | ViT-B/16 | IN-1K | IN-1K | 67.7 | **75.6** |
@@ -139,7 +139,7 @@ torchrun --nproc_per_node=4 --nnodes=1 \
   - Use `--cls_features cls` to utilize the class token from the pre-trained model.
   - Use `--cls_features pos` to utilize the patch tokens (via global average pooling).
 
-- `--ep_queries` sets the number of EP queries (EP<sub>Q</sub> in the paper), e.g. `8`, `16`, `32`.
+- `--ep_queries` sets the number of EP queries (EP<sub>Q</sub> in the paper), e.g. `8`, `16`, `32`. Default: `32`.
   The pooled descriptor stays `(B, D)` regardless, so only the query bank grows.
 
 - To perform full finetuning (**FT**), use the `--finetuning` flag.
