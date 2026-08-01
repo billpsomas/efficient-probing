@@ -150,6 +150,17 @@ def get_args_parser():
                              '(set this to True for full fine‑tuning)')
     
     # Perform kNN evaluation only
+    # Early stopping — stop once validation accuracy plateaus, instead of always
+    # running the full --epochs. Saves a lot of compute on the large encoders.
+    parser.add_argument('--early_stop', action='store_true', default=False,
+                        help='Stop when val acc1 stops improving (see the three flags below)')
+    parser.add_argument('--early_stop_patience', type=int, default=5,
+                        help='Stop after this many consecutive epochs without a gain > --early_stop_min_delta')
+    parser.add_argument('--early_stop_min_delta', type=float, default=0.1,
+                        help='Improvement in val acc1 (percentage points) that counts as progress')
+    parser.add_argument('--early_stop_min_epochs', type=int, default=15,
+                        help='Never stop before this epoch, so the LR warmup is always covered')
+
     parser.add_argument('--knn_eval', action='store_true',
                         help='Perform kNN evaluation only')
     parser.add_argument('--T', type=float, default=0.07,
@@ -672,6 +683,8 @@ def main(args):
     print(f"Start training for {args.epochs} epochs")
     start_time = time.time()
     max_accuracy = 0.0
+    es_best, es_stale = -1.0, 0
+
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             data_loader_train.sampler.set_epoch(epoch)
@@ -714,6 +727,24 @@ def main(args):
             log_writer.add_scalar(f'test_v1_{args.cls_features}/test_acc1', test_stats['acc1'], epoch)
             log_writer.add_scalar(f'test_v1_{args.cls_features}/test_acc5', test_stats['acc5'], epoch)
             log_writer.add_scalar(f'test_v1_{args.cls_features}/test_loss', test_stats['loss'], epoch)
+
+        # ---- early stopping on a validation plateau -------------------------
+        # test_stats comes out of evaluate(), which all-reduces across ranks, so
+        # every rank sees the same number and they all break on the same epoch.
+        if args.early_stop:
+            if test_stats["acc1"] > es_best + args.early_stop_min_delta:
+                es_best, es_stale = test_stats["acc1"], 0
+            else:
+                es_stale += 1
+            if (epoch + 1) >= args.early_stop_min_epochs and es_stale >= args.early_stop_patience:
+                msg = (f"[early-stop] no gain > {args.early_stop_min_delta} pts for "
+                       f"{es_stale} epochs (best {es_best:.2f}%); stopping at epoch {epoch} "
+                       f"of {args.epochs}")
+                print(msg)
+                if misc.is_main_process():
+                    with open(log_file_path, "a") as log_file:
+                        log_file.write(msg + "\n")
+                break
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
