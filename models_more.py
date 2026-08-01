@@ -85,9 +85,14 @@ class CLIPWrapper(nn.Module):
                 cls_tok = self.clip_model(x)
                 out = self.head(cls_tok)
             elif "all" in self.features:
-                cls_tok = self.clip_model(x)
-                cls_tok = cls_tok.unsqueeze(1)
+                # One backbone pass, not two. open_clip's TimmModel.forward is
+                # head(trunk(x)) and timm's trunk(x) is forward_head(forward_features(x)),
+                # so splitting it reproduces self.clip_model(x) exactly while reusing
+                # the patch tokens instead of recomputing them.
                 patch_tok = self.clip_model.trunk.forward_features(x)
+                cls_tok = self.clip_model.head(
+                    self.clip_model.trunk.forward_head(patch_tok)
+                ).unsqueeze(1)
                 all_tok = torch.concat([cls_tok, patch_tok], dim=1)
                 out = self.head(all_tok)
             else:
