@@ -9,9 +9,9 @@
 
 [![Project Page](https://img.shields.io/badge/-Project_Page-green.svg?colorA=333&logo=html5)](https://vrg.fel.cvut.cz/ep/)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Paper-yellow)](https://huggingface.co/papers/2506.10178)
-[![arXiv](https://img.shields.io/badge/arXiv-2510.25387-b31b1b.svg)](https://arxiv.org/abs/2506.10178)
+[![arXiv](https://img.shields.io/badge/arXiv-2506.10178-b31b1b.svg)](https://arxiv.org/abs/2506.10178)
 [![OpenReview](https://img.shields.io/badge/OpenReview-Paper-yellow.svg)](https://openreview.net/pdf?id=PXo0gtT7Al)
-[![Code License: MIT](https://img.shields.io/badge/Code%20License-MIT-lightgray.svg)](LICENSE)
+[![Code License: Apache 2.0](https://img.shields.io/badge/Code%20License-Apache%202.0-lightgray.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.12%2B-lightgray.svg)](#)
 
 </div>
@@ -30,17 +30,62 @@ As fine-tuning becomes impractical at scale, probing is emerging as the preferre
 
 In this work, we revisit attentive probing through the lens of the accuracy vs. parameter-efficiency trade-off. We present the first comprehensive study of existing methods, analyzing their design choices and benchmarking their performance. Building on these insights, we propose efficient probing (EP), a lightweight yet effective multi-query cross-attention mechanism that eliminates redundant projections and reduces the number of trainable parameters. Across multiple benchmarks and pre-training paradigms, EP consistently outperforms linear probing and previous attentive probing methods, and remains effective when combined with parameter-efficient fine-tuning. Beyond evaluation, our analysis uncovers emerging properties of EP, including complementary attention maps, which open new directions for leveraging probing beyond protocol design.
 
+## Benchmark
+
+Top-1 accuracy of linear probing (**LP**) vs. efficient probing (**EP**) on frozen encoders. **Pre-tr.** is the pre-training dataset; **Dataset** is the evaluation dataset.
+
+This table is meant to grow. If you evaluate a backbone we have not covered, please open a pull request adding a row — see [Contributing a row](#contributing-a-row).
+
+| | Method | Arch. | Pre-tr. | Dataset | LP | EP |
+|---|---|---|---|---|---:|---:|
+| **MIM** | MAE | ViT-S/16 | IN-1K | IN-1K | 47.4 | **64.6** |
+| | MAE | ViT-B/16 | IN-1K | IN-1K | 67.7 | **75.6** |
+| | MAE | ViT-L/16 | IN-1K | IN-1K | 76.0 | **79.3** |
+| | BEiTv2 | ViT-B/16 | IN-1K | IN-1K | 79.0 | **81.7** |
+| | SimMIM | ViT-B/16 | IN-1K | IN-1K | 51.5 | **65.1** |
+| | CAPI | ViT-L/14 | IN-1K | IN-1K | 81.5 | **83.6** |
+| **JEA** | BYOL | RN-50 | IN-1K | IN-1K | 74.3 | **75.1** |
+| | DINO | ViT-B/16 | IN-1K | IN-1K | 77.3 | **77.8** |
+| **Hybrid** | iBOT | ViT-B/16 | IN-1K | IN-1K | 78.7 | **79.2** |
+| | DINOv2 | ViT-B/14 | LVD-142M | IN-1K | 83.2 | **84.0** |
+| | DINOv2 | ViT-L/14 | LVD-142M | IN-1K | 85.2 | **85.6** |
+| | Franca | ViT-L/14 | IN-21k | IN-1K | 83.8 | **84.3** |
+| | DINOv3 | ViT-B/16 | LVD-1689M | IN-1K | 84.0 | **84.4** |
+| | DINOv3 | ViT-L/16 | LVD-1689M | IN-1K | 86.6 | **87.1** |
+| **VLM** | CLIP | ViT-L/16 | WIT | IN-1K | 82.3 | **83.4** |
+| | SigLIP | ViT-L/16 | WebLI | IN-1K | 84.1<sup>‡</sup> | **86.1** |
+| | SigLIP | ViT-L/16 | WebLI | IN-1K | 85.2<sup>‡</sup> | **87.0** |
+| **GEN** | DiT | DiT-XL/2 | IN-1K | IN-1K | 32.7<sup>‡</sup> | **57.0** |
+| | AIMv2 | ViT-L/14 | custom | IN-1K | 84.8<sup>‡</sup> | **85.9** |
+
+<sup>‡</sup> See the paper for the meaning of this marker.
+
+Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectures · **Hybrid** MIM + JEA · **VLM** vision-language models · **GEN** generative models.
+
+### Contributing a row
+
+1. Run LP and EP on your backbone (see [Experiments](#experiments)). Keep the protocol fixed: 90 epochs, LARS, `--blr 0.1`, effective batch size 4096.
+2. Report LP as the better of `--cls_features cls` and `--cls_features pos`, and EP with `--cls_features ep`.
+3. Add a row with the `--ep_queries` value you used, and open a PR linking the training log.
+
 ## Emerging Properties
 
 We jointly visualize the attention maps of EP<sub>8</sub>. An emerging property of EP is that its queries specialize in different object regions, yielding complementary and interpretable attention patterns. Queries consistently attend to distinct parts, producing stable semantic correspondences (e.g., tails, beaks, feet) across images and a structured decomposition of visual cues.
 
 <p align="center">
-<img width="100%" alt="EP illustration" src=".github/ep8_queries.png">
+<img width="100%" alt="Complementary attention maps of the 8 EP queries" src=".github/ep8_queries.png">
 </p>
 
 ## Environment
 
-Dependencies are listed in `requirements.txt`.
+```bash
+pip install -r requirements.txt
+```
+
+Optional extras, needed only for specific backbones: `open_clip_torch` (CLIP/SigLIP), `diffusers` (DiT/SiT), `aim` (AIMv2).
+
+> [!IMPORTANT]
+> `timm` must stay at the pinned `0.9.16`. From `timm` 1.0.x onwards, `VisionTransformer` passes `scale_attn_norm` to `block_fn`, which the custom `Block` in `models_vit.py` does not accept, so every `models_vit` backbone fails at construction. Installing `open_clip_torch` will silently upgrade `timm` — reinstall the pin afterwards.
 
 ## Integration (drop-in EP)
 
@@ -85,14 +130,17 @@ torchrun --nproc_per_node=4 --nnodes=1 \
     main_linprobe.py --amp bfloat16 --num_workers=12 --dataloader_affinity_hack \
     --epochs=90 --accum_iter=1 --optimizer=lars --batch_size=1024 \
     --model vit_base_patch16  --finetune vit_base_patch16_224.mae \
-    --dataset_name imagenet1k --nb_classes 1000 --data_path /mnt/data/Public_datasets/imagenet/imagenet_pytorch \
-    --output_dir /home/psomava1/code/beyond_cls/outputs/linprobe_mae_vitb_ep_imagenet1k \
-    --cls_features=ep
+    --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet_pytorch \
+    --output_dir ./outputs/linprobe_mae_vitb_ep_imagenet1k \
+    --cls_features ep --ep_queries 32
 ```
 
 - To perform standard linear probing (**LP**):
   - Use `--cls_features cls` to utilize the class token from the pre-trained model.
   - Use `--cls_features pos` to utilize the patch tokens (via global average pooling).
+
+- `--ep_queries` sets the number of EP queries (EP<sub>Q</sub> in the paper), e.g. `8`, `16`, `32`.
+  The pooled descriptor stays `(B, D)` regardless, so only the query bank grows.
 
 - To perform full finetuning (**FT**), use the `--finetuning` flag.
 
@@ -121,9 +169,9 @@ torchrun --nproc_per_node=4 --nnodes=1 \
     main_linprobe.py --amp bfloat16 --num_workers=12 --dataloader_affinity_hack \
     --epochs=90 --accum_iter=1 --optimizer=lars --batch_size=1024 \
     --model ViT-L-14 --openclip_pretrain openai --openclip \
-    --dataset_name imagenet1k --nb_classes 1000 --data_path /mnt/data/Public_datasets/imagenet/imagenet_pytorch \
-    --output_dir /home/psomava1/code/beyond_cls/outputs/linprobe_clip_openai_vitl_ep_imagenet1k \
-    --cls_features=ep
+    --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet_pytorch \
+    --output_dir ./outputs/linprobe_clip_openai_vitl_ep_imagenet1k \
+    --cls_features ep --ep_queries 16
 ```
 - To evaluate alternative pre-trained OpenCLIP models, adjust the `--model` and `--openclip_pretrain` arguments accordingly. Available combinations can be found in the [official OpenCLIP repository](https://github.com/mlfoundations/open_clip).
 
