@@ -1,0 +1,33 @@
+Training Log
+Model: dinov3_vit7b16
+Model Details: 
+Dataset: imagenet1k
+Representation: ep_all
+Batch size per GPU: 16
+Base learning rate: 0.1
+Effective batch size: 4096
+Trainable Parameters: 21,005,288
+Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
+0, 4.2646, 43.50, 1.1307, 81.15, 95.37
+1, 0.7590, 84.31, 0.5661, 86.17, 97.76
+2, 0.5438, 86.82, 0.4868, 87.20, 98.17
+3, 0.4799, 87.81, 0.4573, 87.48, 98.32
+4, 0.4408, 88.46, 0.4413, 87.88, 98.45
+5, 0.4099, 88.97, 0.4281, 88.05, 98.55
+6, 0.3830, 89.47, 0.4265, 88.26, 98.56
+7, 0.3604, 89.95, 0.4317, 88.08, 98.54
+8, 0.3397, 90.41, 0.4358, 88.16, 98.54
+9, 0.3228, 90.78, 0.4428, 88.00, 98.56
+10, 0.3084, 91.08, 0.4500, 87.98, 98.47
+11, 0.2905, 91.58, 0.4545, 88.01, 98.52
+12, 0.2753, 91.96, 0.4636, 87.87, 98.43
+13, 0.2608, 92.34, 0.4667, 88.01, 98.41
+14, 0.2478, 92.70, 0.4774, 87.75, 98.42
+15, 0.2372, 92.97, 0.4852, 87.80, 98.38
+16, 0.2257, 93.33, 0.5018, 87.59, 98.35
+17, 0.2155, 93.62, 0.5179, 87.36, 98.21
+18, 0.2071, 93.86, 0.5205, 87.58, 98.23
+[early-stop] no gain > 0.05 pts for 8 epochs (best 88.26%); the early-stopping rule (patience 8, min_delta 0.05, min_epochs 15) was satisfied at epoch 14. The run was launched without --early_stop and continued to epoch 18, where it hit the 48h wall with no further improvement, so it is reported as stopped at epoch 18 of 90.
+
+Final Results:
+Max Accuracy: 88.26%

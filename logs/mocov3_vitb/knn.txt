@@ -1,0 +1,51 @@
+k-NN Evaluation
+Model: MoCov3 ViT-B/16
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 65.23, 79.85
+raw, 0.07, 10, 66.40, 83.17
+raw, 0.07, 15, 66.64, 84.45
+raw, 0.07, 20, 66.76, 85.31
+raw, 0.07, 50, 66.47, 86.93
+raw, 0.07, 100, 66.22, 87.36
+raw, 0.07, 200, 65.67, 87.49
+raw, 0.1, 5, 65.24, 79.85
+raw, 0.1, 10, 66.30, 83.17
+raw, 0.1, 15, 66.47, 84.46
+raw, 0.1, 20, 66.59, 85.33
+raw, 0.1, 50, 66.08, 86.92
+raw, 0.1, 100, 65.57, 87.30
+raw, 0.1, 200, 64.80, 87.29
+raw, 0.2, 5, 65.12, 79.85
+raw, 0.2, 10, 66.17, 83.17
+raw, 0.2, 15, 66.18, 84.46
+raw, 0.2, 20, 66.24, 85.30
+raw, 0.2, 50, 65.43, 86.75
+raw, 0.2, 100, 64.73, 87.05
+raw, 0.2, 200, 63.70, 86.81
+final_norm, 0.07, 5, 64.87, 79.59
+final_norm, 0.07, 10, 65.97, 82.80
+final_norm, 0.07, 15, 66.19, 84.21
+final_norm, 0.07, 20, 66.25, 85.06
+final_norm, 0.07, 50, 65.52, 86.49
+final_norm, 0.07, 100, 64.86, 86.83
+final_norm, 0.07, 200, 64.00, 86.69
+final_norm, 0.1, 5, 64.80, 79.59
+final_norm, 0.1, 10, 65.89, 82.80
+final_norm, 0.1, 15, 66.07, 84.20
+final_norm, 0.1, 20, 66.07, 85.05
+final_norm, 0.1, 50, 65.26, 86.42
+final_norm, 0.1, 100, 64.53, 86.70
+final_norm, 0.1, 200, 63.53, 86.50
+final_norm, 0.2, 5, 64.79, 79.59
+final_norm, 0.2, 10, 65.83, 82.80
+final_norm, 0.2, 15, 65.98, 84.20
+final_norm, 0.2, 20, 65.94, 85.04
+final_norm, 0.2, 50, 65.01, 86.36
+final_norm, 0.2, 100, 64.02, 86.59
+final_norm, 0.2, 200, 62.92, 86.27
+
+Best: Top1 66.76% with raw features at k=20, T=0.07
+Top5: 85.31%

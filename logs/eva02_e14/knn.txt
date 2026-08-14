@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: EVA02-CLIP E-14
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 70.46, 75.74
+raw, 0.07, 10, 66.92, 72.92
+raw, 0.07, 15, 64.71, 71.01
+raw, 0.07, 20, 63.31, 69.84
+raw, 0.07, 50, 59.21, 66.39
+raw, 0.07, 100, 57.12, 64.65
+raw, 0.07, 200, 56.56, 64.36
+raw, 0.1, 5, 81.31, 91.21
+raw, 0.1, 10, 81.89, 93.44
+raw, 0.1, 15, 82.12, 94.34
+raw, 0.1, 20, 82.21, 94.89
+raw, 0.1, 50, 81.82, 95.96
+raw, 0.1, 100, 81.27, 96.18
+raw, 0.1, 200, 80.56, 96.18
+raw, 0.2, 5, 81.25, 91.21
+raw, 0.2, 10, 81.76, 93.44
+raw, 0.2, 15, 81.83, 94.35
+raw, 0.2, 20, 81.80, 94.90
+raw, 0.2, 50, 81.01, 95.89
+raw, 0.2, 100, 80.14, 96.04
+raw, 0.2, 200, 79.02, 95.96
+
+Best: Top1 82.21% with raw features at k=20, T=0.1
+Top5: 94.89%

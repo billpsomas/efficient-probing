@@ -199,8 +199,17 @@ def extract_features(
                 assert return_block is None, f"{return_block=} not used"
                 _, output_feat = model.forward(images, return_backbone_features=True)
 
+        # Wrappers hand back the raw patch tokens (B, N, C) for the pooling variants,
+        # not a pooled vector. k-NN needs one vector per image, and for the "pos"
+        # variant that vector is by definition the mean over patch tokens -- without
+        # this the classifier gets a 3D tensor and dies in .t().
+        if output_feat.dim() == 3:
+            output_feat = output_feat.mean(dim=1)
+        elif output_feat.dim() > 3:
+            output_feat = output_feat.flatten(1)
+
         targets.append(target.cpu())
-        features.append(output_feat.cpu())
+        features.append(output_feat.float().cpu())
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()

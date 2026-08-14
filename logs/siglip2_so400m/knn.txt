@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: SigLIP2 SO400M/14
+Representation: pos
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 76.48, 87.94
+raw, 0.07, 10, 77.45, 90.41
+raw, 0.07, 15, 77.54, 91.40
+raw, 0.07, 20, 77.32, 92.02
+raw, 0.07, 50, 76.69, 93.18
+raw, 0.07, 100, 75.91, 93.50
+raw, 0.07, 200, 74.72, 93.32
+raw, 0.1, 5, 76.43, 87.94
+raw, 0.1, 10, 77.33, 90.41
+raw, 0.1, 15, 77.38, 91.39
+raw, 0.1, 20, 77.13, 92.00
+raw, 0.1, 50, 76.31, 93.11
+raw, 0.1, 100, 75.45, 93.37
+raw, 0.1, 200, 74.13, 93.15
+raw, 0.2, 5, 76.39, 87.94
+raw, 0.2, 10, 77.25, 90.41
+raw, 0.2, 15, 77.20, 91.39
+raw, 0.2, 20, 76.96, 91.99
+raw, 0.2, 50, 75.92, 93.04
+raw, 0.2, 100, 74.94, 93.25
+raw, 0.2, 200, 73.44, 92.96
+
+Best: Top1 77.54% with raw features at k=15, T=0.07
+Top5: 91.40%

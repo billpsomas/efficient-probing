@@ -1,0 +1,32 @@
+Training Log
+Model: EVA02-E-14-plus
+Model Details: 
+Dataset: imagenet1k
+Representation: ep
+Batch size per GPU: 32
+Base learning rate: 0.1
+Effective batch size: 4096
+Trainable Parameters: 5,061,608
+Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
+0, 5.0644, 34.57, 1.8999, 78.40, 94.03
+1, 0.8169, 85.93, 0.5392, 86.26, 97.94
+2, 0.4216, 88.85, 0.4583, 87.37, 98.39
+3, 0.3581, 89.95, 0.4325, 87.63, 98.52
+4, 0.3235, 90.61, 0.4220, 87.92, 98.61
+5, 0.2996, 91.12, 0.4208, 87.86, 98.63
+6, 0.2813, 91.55, 0.4221, 87.98, 98.57
+7, 0.2669, 91.85, 0.4305, 87.73, 98.56
+8, 0.2544, 92.17, 0.4377, 87.71, 98.58
+9, 0.2436, 92.40, 0.4454, 87.51, 98.58
+10, 0.2308, 92.74, 0.4522, 87.65, 98.53
+11, 0.2141, 93.18, 0.4569, 87.45, 98.54
+12, 0.1974, 93.64, 0.4723, 87.38, 98.47
+13, 0.1794, 94.17, 0.4746, 87.55, 98.54
+14, 0.1623, 94.71, 0.4947, 87.36, 98.44
+[early-stop] no gain > 0.05 pts for 8 epochs (best 87.98%); stopping at epoch 14 of 90
+
+Final Results:
+Max Accuracy: 87.98%
+Final Val Acc1: 87.36%
+Final Val Acc5: 98.44%
+Total Training Time: 1 day, 2:08:02

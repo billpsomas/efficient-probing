@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: EVA02 ViT-L/14
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 72.90, 85.52
+raw, 0.07, 10, 73.95, 88.20
+raw, 0.07, 15, 73.93, 89.31
+raw, 0.07, 20, 73.73, 89.99
+raw, 0.07, 50, 72.93, 91.20
+raw, 0.07, 100, 71.79, 91.39
+raw, 0.07, 200, 70.14, 91.27
+raw, 0.1, 5, 72.90, 85.52
+raw, 0.1, 10, 73.94, 88.20
+raw, 0.1, 15, 73.93, 89.31
+raw, 0.1, 20, 73.73, 89.99
+raw, 0.1, 50, 72.93, 91.20
+raw, 0.1, 100, 71.79, 91.39
+raw, 0.1, 200, 70.14, 91.27
+raw, 0.2, 5, 72.90, 85.52
+raw, 0.2, 10, 73.94, 88.20
+raw, 0.2, 15, 73.93, 89.31
+raw, 0.2, 20, 73.73, 89.99
+raw, 0.2, 50, 72.93, 91.20
+raw, 0.2, 100, 71.79, 91.39
+raw, 0.2, 200, 70.14, 91.27
+
+Best: Top1 73.95% with raw features at k=10, T=0.07
+Top5: 88.20%

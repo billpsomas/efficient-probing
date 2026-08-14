@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: SigLIP2 ViT-L/16
+Representation: pos
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 75.35, 87.11
+raw, 0.07, 10, 76.20, 89.70
+raw, 0.07, 15, 76.21, 90.78
+raw, 0.07, 20, 76.06, 91.43
+raw, 0.07, 50, 75.49, 92.62
+raw, 0.07, 100, 74.60, 92.76
+raw, 0.07, 200, 73.43, 92.66
+raw, 0.1, 5, 75.28, 87.11
+raw, 0.1, 10, 76.09, 89.70
+raw, 0.1, 15, 76.03, 90.78
+raw, 0.1, 20, 75.85, 91.43
+raw, 0.1, 50, 75.15, 92.58
+raw, 0.1, 100, 74.19, 92.67
+raw, 0.1, 200, 72.81, 92.51
+raw, 0.2, 5, 75.26, 87.11
+raw, 0.2, 10, 76.02, 89.70
+raw, 0.2, 15, 75.89, 90.77
+raw, 0.2, 20, 75.71, 91.42
+raw, 0.2, 50, 74.84, 92.52
+raw, 0.2, 100, 73.67, 92.56
+raw, 0.2, 200, 72.14, 92.34
+
+Best: Top1 76.21% with raw features at k=15, T=0.07
+Top5: 90.78%

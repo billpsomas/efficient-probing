@@ -203,7 +203,11 @@ class VisionTransformer(timm.models.vision_transformer.VisionTransformer):
             return_block: Optional[int] = None
     ):
         if self.global_pool != "token":
-            assert return_features in ["cls", "raw", "pos"]
+            # "gap" belongs here: forward() rewrites the CLI's "pos" to "gap" before
+            # calling us, so leaving it out made --cls_features pos crash on exactly
+            # the encoders that need it -- the ones built with --no_cls_token, where
+            # GAP is the only linear probe available.
+            assert return_features in ["cls", "raw", "pos", "gap"]
 
         return_block = return_block or len(self.blocks) - 1
         orig_x = x

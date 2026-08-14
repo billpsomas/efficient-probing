@@ -70,6 +70,26 @@ def get_args_parser():
                         help='Name of pretrain framework for openclip')
     parser.add_argument("--simmim", action="store_true", default=False)
     parser.add_argument("--openclip", action="store_true", default=False)
+    parser.add_argument('--dinov3_weights', type=str, default=None, metavar='DINOV3_WEIGHTS',
+                        help='Path to (or URL of) DINOv3 weights; required for --model dinov3_*')
+    parser.add_argument("--franca_img_size", type=int, default=518,
+                        help="Grid the Franca checkpoint was trained at; the LAION ViT-L "
+                             "weights are 518 while the hub builds 224 by default.")
+    parser.add_argument("--franca_weights", type=str, default=None,
+                        help='Which Franca weights to pull, e.g. "LAION". Default (None) uses '
+                             'the hub default, which is In21K -- unavailable for ViT-L.')
+    parser.add_argument("--use_rasa_head", action="store_true", default=False,
+                        help="Use debiased patch tokens from the RASA head (Franca only)")
+    parser.add_argument("--dit_image_size", type=int, choices=[256, 512], default=256)
+    parser.add_argument("--dit_ckpt", type=str, default=None,
+                        help="Optional DiT checkpoint (default: auto-download DiT-XL/2)")
+    parser.add_argument("--vae", type=str, choices=["ema", "mse"], default="mse")
+    parser.add_argument("--timm", action="store_true", default=False,
+                        help="Load --model as a plain timm backbone (SAM, Hiera, ConvNeXt, ...)")
+    parser.add_argument("--radio", action="store_true", default=False,
+                        help="Load --model from the NVlabs/RADIO torch.hub repo")
+    parser.add_argument("--input_size", default=224, type=int,
+                        help="Evaluation resolution; only used by --timm / --radio")
 
     # Optimizer parameters
     parser.add_argument('--weight_decay', type=float, default=0,
@@ -163,6 +183,9 @@ def get_args_parser():
 
     parser.add_argument('--knn_eval', action='store_true',
                         help='Perform kNN evaluation only')
+    parser.add_argument('--T_sweep', type=str, default="",
+                        help='Comma-separated temperatures to sweep in one pass, e.g. '
+                             '"0.07,0.1,0.2". Features are extracted once and reused.')
     parser.add_argument('--T', type=float, default=0.07,
                         help='Temperature for kNN evaluation. We recommend starting with the default value 0.07 and increase slightly up to 0.1-0.2 for the openclip models.')
 
@@ -186,14 +209,21 @@ def main(args):
 
     log_file_path = os.path.join(args.output_dir, "training_log.txt")
     if misc.is_main_process():
-        with open(log_file_path, "w") as log_file:
-            log_file.write("Training Log\n")
-            log_file.write(f"Model: {args.model}\n")
-            log_file.write(f"Model Details: {args.finetune}\n")
-            log_file.write(f"Dataset: {args.dataset_name}\n")
-            log_file.write(f"Representation: {args.cls_features}\n")
-            log_file.write(f"Batch size per GPU: {args.batch_size}\n")
-            log_file.write(f"Base learning rate: {args.blr}\n")
+        # Never truncate an existing log when resuming: args.resume is already
+        # resolved by --auto_resume at this point, and a resume that later fails
+        # would otherwise destroy the epoch history of the run it is continuing.
+        resuming = bool(args.resume) and os.path.exists(log_file_path)
+        with open(log_file_path, "a" if resuming else "w") as log_file:
+            if resuming:
+                log_file.write(f"# resumed from {args.resume}\n")
+            else:
+                log_file.write("Training Log\n")
+                log_file.write(f"Model: {args.model}\n")
+                log_file.write(f"Model Details: {args.finetune}\n")
+                log_file.write(f"Dataset: {args.dataset_name}\n")
+                log_file.write(f"Representation: {args.cls_features}\n")
+                log_file.write(f"Batch size per GPU: {args.batch_size}\n")
+                log_file.write(f"Base learning rate: {args.blr}\n")
 
     print('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
     print("{}".format(args).replace(', ', ',\n'))
@@ -213,13 +243,13 @@ def main(args):
         # Choose between weak or stronger augmentation
         if args.train_aug == 'default':
             transform_train = transforms.Compose([
-                    RandomResizedCrop(224, interpolation=3),
+                    RandomResizedCrop(args.input_size, interpolation=3),
                     transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(),
                     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         elif args.train_aug == 'aimv2':
             transform_train = transforms.Compose([
-                    RandomResizedCrop(224, scale=(0.08, 1.0), ratio=(0.75, 1.33), interpolation=transforms.InterpolationMode.BICUBIC),
+                    RandomResizedCrop(args.input_size, scale=(0.08, 1.0), ratio=(0.75, 1.33), interpolation=transforms.InterpolationMode.BICUBIC),
                     transforms.RandomHorizontalFlip(p=0.5),
                     transforms.ColorJitter(0.3),
                     AutoAugment(policy=AutoAugmentPolicy.IMAGENET),  # corresponds to 'rand-m9-mstd0.5-inc1'
@@ -228,8 +258,8 @@ def main(args):
                 ])
 
         transform_val = transforms.Compose([
-                transforms.Resize(256, interpolation=3),
-                transforms.CenterCrop(224),
+                transforms.Resize(int(args.input_size * 256 / 224), interpolation=3),
+                transforms.CenterCrop(args.input_size),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
     
@@ -349,6 +379,82 @@ def main(args):
             num_classes=args.nb_classes,
             features=args.cls_features
         )
+    elif args.model.startswith("aimv2"):
+        from aim.v2.utils import load_pretrained
+        model = models_more.AIMv2Wrapper(
+            aimv2_model=load_pretrained(args.model, backend="torch"),
+            num_classes=args.nb_classes, features=args.cls_features)
+    elif args.model.startswith("franca"):
+        # torch.hub defaults to the In21K weights, but release v1.0.0 of valeoai/Franca
+        # never uploaded franca_vitl14_In21K.pth (and its ViT-g In21K chunk is 0 bytes),
+        # so ViT-L is only obtainable with weights="LAION".
+        franca_kwargs = dict(use_rasa_head=args.use_rasa_head)
+        if args.franca_weights:
+            franca_kwargs["weights"] = args.franca_weights
+            # Upstream quirk: _make_franca_model defaults to img_size=224 and only
+            # franca_vitb14 raises it to 518 for non-DINOv2 weights, but the ViT-L
+            # LAION checkpoint is 518-trained (pos_embed is 1+37^2 = 1370 tokens).
+            # Building at 224 fails the load outright; building at 518 matches the
+            # checkpoint and the DINOv2-derived forward interpolates for our inputs.
+            if args.franca_weights.upper() == "LAION" and args.franca_img_size:
+                franca_kwargs["img_size"] = args.franca_img_size
+        if misc.is_dist_avail_and_initialized():
+            if misc.get_rank() == 0:
+                _ = torch.hub.load("valeoai/Franca", args.model, **franca_kwargs)
+            torch.distributed.barrier()
+        model = models_more.FrancaWrapper(
+            franca_model=torch.hub.load("valeoai/Franca", args.model, **franca_kwargs),
+            num_classes=args.nb_classes, features=args.cls_features,
+            use_rasa_head=args.use_rasa_head)
+    elif args.model.startswith(("DiT", "SiT")):
+        from diffusers.models import AutoencoderKL
+        is_dit = args.model.startswith("DiT")
+        if is_dit:
+            from util.DiT.models import DiT_models as _MODELS
+            from util.DiT.download import find_model as _find
+        else:
+            from util.SiT.models import SiT_models as _MODELS
+            from util.SiT.download import find_model as _find
+        backbone = _MODELS[args.model](input_size=args.dit_image_size // 8,
+                                       num_classes=args.nb_classes)
+        ckpt = args.dit_ckpt or f"{args.model.replace('/', '-')}-{args.dit_image_size}x{args.dit_image_size}.pt"
+        backbone.load_state_dict(_find(ckpt))
+        vae = AutoencoderKL.from_pretrained(f"stabilityai/sd-vae-ft-{args.vae}").to(device).eval()
+        model = models_more.DiTWrapper(
+            dit_model=backbone, vae_model=vae, num_classes=args.nb_classes,
+            features=args.cls_features, finetuning=args.finetuning)
+    elif args.model.startswith("dinov3"):
+        if not args.dinov3_weights:
+            raise ValueError("--model dinov3_* requires --dinov3_weights (the weights are licence-gated)")
+        if misc.is_dist_avail_and_initialized():
+            if misc.get_rank() == 0:
+                _ = torch.hub.load("facebookresearch/dinov3", args.model, weights=args.dinov3_weights)
+            torch.distributed.barrier()
+        dinov3_backbone = torch.hub.load("facebookresearch/dinov3", args.model, weights=args.dinov3_weights)
+        model = models_more.DinoWrapper(
+            dino_model=dinov3_backbone,
+            num_classes=args.nb_classes,
+            features=args.cls_features,
+        )
+    elif args.timm:
+        backbone = timm.create_model(args.model, pretrained=True, num_classes=0)
+        model = models_more.TimmWrapper(
+            timm_model=backbone,
+            num_classes=args.nb_classes,
+            features=args.cls_features,
+            num_prefix_tokens=getattr(backbone, "num_prefix_tokens", 0),
+        )
+    elif args.radio:
+        if misc.is_dist_avail_and_initialized():
+            if misc.get_rank() == 0:
+                _ = torch.hub.load("NVlabs/RADIO", "radio_model", version=args.model, progress=True)
+            torch.distributed.barrier()
+        radio_backbone = torch.hub.load("NVlabs/RADIO", "radio_model", version=args.model, progress=True)
+        model = models_more.RadioWrapper(
+            radio_model=radio_backbone,
+            num_classes=args.nb_classes,
+            features=args.cls_features,
+        )
     elif args.openclip:
         backbone, _, _ = open_clip.create_model_and_transforms(args.model, pretrained=args.openclip_pretrain)
         vision_encoder = backbone.visual
@@ -370,10 +476,19 @@ def main(args):
             **cls_kwargs
         )
 
-    if args.finetune and not args.eval and not args.knn_eval and not args.simmim and not args.model.startswith(("capi", "dinov2")):
+    # NOTE: --knn_eval used to be excluded here, which meant --finetune weights were
+    # never loaded and k-NN ran on a randomly initialised backbone (~1% top-1 on
+    # ImageNet, i.e. chance). --eval stays excluded because it restores a full
+    # trained model through --resume; k-NN has no head to restore and needs the
+    # backbone weights loaded here.
+    if args.finetune and not args.eval and not args.simmim and not args.model.startswith(("capi", "dinov2")):
         if Path(args.finetune).exists():
             print("Interpreting", args.finetune, "as path")
-            checkpoint_model = torch.load(args.finetune, map_location='cpu')[args.checkpoint_key]
+            # weights_only=False: MAE-style checkpoints carry an argparse Namespace
+            # alongside the tensors, which torch>=2.6 refuses to unpickle by default.
+            # Only load --finetune checkpoints you trust.
+            checkpoint_model = torch.load(args.finetune, map_location='cpu',
+                                          weights_only=False)[args.checkpoint_key]
         else:
             print("Interpreting", args.finetune, "as timm model")
             from timm.models.vision_transformer import _create_vision_transformer
@@ -389,10 +504,24 @@ def main(args):
             checkpoint_model = _create_vision_transformer(args.finetune, pretrained=True, **model_kwargs).state_dict()
 
         state_dict = model.state_dict()
+        # Always drop the pretrained classifier: we are fitting a probe, so its weights
+        # are never wanted. The old guard only dropped it on a shape mismatch, which
+        # meant a checkpoint whose head happened to be 1000-way was loaded straight into
+        # the probe -- and MaskFeat ViT-L's 1000-way head is entirely NaN, so training
+        # died with "Loss is nan" at epoch 0 while its ViT-B sibling was fine.
         for k in ['head.weight', 'head.bias']:
-            if k in checkpoint_model and checkpoint_model[k].shape != state_dict[k].shape:
+            if k in checkpoint_model:
                 print(f"Removing key {k} from pretrained checkpoint")
                 del checkpoint_model[k]
+        # Some converted checkpoints carry NaN in tensors their pre-training never
+        # trained. Refuse them rather than letting a NaN reach the optimiser.
+        bad = [k for k, v in checkpoint_model.items()
+               if isinstance(v, torch.Tensor) and torch.isnan(v).any()]
+        if bad:
+            print(f"Dropping {len(bad)} NaN tensor(s) from the checkpoint: {bad[:6]}")
+            for k in bad:
+                del checkpoint_model[k]
+        dropped_on_purpose = set(bad) | {'head.weight', 'head.bias'}
 
         # interpolate position embedding
         try:
@@ -405,10 +534,17 @@ def main(args):
         msg = model.load_state_dict(checkpoint_model, strict=False)
         print(msg)
 
+        # A key may be missing either because it is one the probe supplies itself
+        # (head/oracle/fc) or because we deliberately removed it above -- the NaN
+        # tensors and the pretrained classifier. Anything else missing is a real
+        # mismatch and should still stop the run.
+        allowed = locals().get('dropped_on_purpose', set())
         assert all([
             k.startswith("head") or k.startswith("oracle") or k.startswith("fc")
+            or k in allowed
             for k in msg.missing_keys
-        ]), sorted(msg.missing_keys)
+        ]), sorted(k for k in msg.missing_keys
+                   if not (k.startswith(("head", "oracle", "fc")) or k in allowed))
 
     if args.cls_features == "abmilp" or args.cls_features == "abmilp_all":
         abmilp = ABMILPHead(
@@ -653,8 +789,12 @@ def main(args):
                         strict=False)
 
     if args.knn_eval:
-        train_stats = extract_features(data_loader_train, model, device, return_targets_and_preds=True)
-        test_stats = extract_features(data_loader_val, model, device, return_targets_and_preds=True)
+        train_stats = extract_features(data_loader_train, model, device,
+                                       return_targets_and_preds=True,
+                                       cls_features=args.cls_features)
+        test_stats = extract_features(data_loader_val, model, device,
+                                      return_targets_and_preds=True,
+                                      cls_features=args.cls_features)
         print(f"Train features shape: {train_stats['features'].shape}")
         print(f"Train targets shape: {train_stats['targets'].shape}")
         print(f"Test features shape: {test_stats['features'].shape}")
@@ -669,10 +809,32 @@ def main(args):
         train_features = nn.functional.normalize(train_features, dim=1, p=2)
         test_features = nn.functional.normalize(test_features, dim=1, p=2)
 
-        for k in [5,10,15,20,50,100,200]:
-            top1, top5 = knn_classifier(train_features, train_labels,
-                test_features, test_labels, k, T=args.T)
-            print(f"{k}-NN classifier result: Top1: {top1}, Top5: {top5}")
+        # Feature extraction is the whole cost here (one pass over train+val); the
+        # search itself is seconds. So sweep both k and the temperature in memory
+        # rather than re-extracting per temperature, which used to triple the bill
+        # for a difference in the third decimal.
+        variants = [("raw", train_features, test_features)]
+        bb = model_without_ddp
+        final_norm = getattr(bb, "norm", None)
+        if final_norm is not None and hasattr(final_norm, "weight") \
+                and final_norm.weight.shape[0] == train_features.shape[1]:
+            with torch.no_grad():
+                fn = final_norm.to(train_features.device).float()
+                tr = nn.functional.normalize(fn(train_features), dim=1, p=2)
+                te = nn.functional.normalize(fn(test_features), dim=1, p=2)
+            variants.append(("final_norm", tr, te))
+            print("[knn] reporting both raw and final-LayerNorm features")
+        else:
+            print("[knn] no usable final LayerNorm on this backbone; raw features only")
+
+        temps = [float(t) for t in args.T_sweep.split(",")] if args.T_sweep else [args.T]
+        for vname, trf, tef in variants:
+          print(f"=== features={vname} ===")
+          for T in temps:
+            print(f"=== T={T} ===")
+            for k in [5,10,15,20,50,100,200]:
+                top1, top5 = knn_classifier(trf, train_labels, tef, test_labels, k, T=T)
+                print(f"{k}-NN classifier result: Top1: {top1}, Top5: {top5}")
         exit(0)
 
     if args.eval:
@@ -704,10 +866,12 @@ def main(args):
                      'n_parameters': n_parameters}
         if args.output_dir:
             if args.finetuning:
+                model_without_ddp._ep_saved_module = 'full'
                 misc.save_model(
                     args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
                     loss_scaler=loss_scaler, epoch=epoch, test_stats=log_stats, include_epoch_in_filename=False)
             else:
+                model_without_ddp.head._ep_saved_module = 'head'
                 misc.save_model(
                     args=args, model=model, model_without_ddp=model_without_ddp.head, optimizer=optimizer,
                     loss_scaler=loss_scaler, epoch=epoch, test_stats=log_stats, include_epoch_in_filename=False)

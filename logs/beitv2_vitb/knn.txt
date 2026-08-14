@@ -1,0 +1,51 @@
+k-NN Evaluation
+Model: BEiTv2 ViT-B/16
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 67.88, 81.42
+raw, 0.07, 10, 69.37, 84.27
+raw, 0.07, 15, 69.90, 85.44
+raw, 0.07, 20, 70.06, 86.18
+raw, 0.07, 50, 70.09, 87.68
+raw, 0.07, 100, 69.83, 88.18
+raw, 0.07, 200, 69.42, 88.26
+raw, 0.1, 5, 67.94, 81.42
+raw, 0.1, 10, 69.31, 84.27
+raw, 0.1, 15, 69.80, 85.44
+raw, 0.1, 20, 69.91, 86.21
+raw, 0.1, 50, 69.69, 87.68
+raw, 0.1, 100, 69.32, 88.19
+raw, 0.1, 200, 68.67, 88.04
+raw, 0.2, 5, 67.91, 81.42
+raw, 0.2, 10, 69.13, 84.27
+raw, 0.2, 15, 69.50, 85.44
+raw, 0.2, 20, 69.50, 86.18
+raw, 0.2, 50, 69.13, 87.57
+raw, 0.2, 100, 68.42, 87.92
+raw, 0.2, 200, 67.49, 87.69
+final_norm, 0.07, 5, 65.01, 79.32
+final_norm, 0.07, 10, 66.38, 82.30
+final_norm, 0.07, 15, 66.81, 83.41
+final_norm, 0.07, 20, 66.93, 84.25
+final_norm, 0.07, 50, 66.66, 85.65
+final_norm, 0.07, 100, 66.12, 86.04
+final_norm, 0.07, 200, 65.19, 85.68
+final_norm, 0.1, 5, 64.93, 79.32
+final_norm, 0.1, 10, 66.31, 82.30
+final_norm, 0.1, 15, 66.66, 83.40
+final_norm, 0.1, 20, 66.71, 84.25
+final_norm, 0.1, 50, 66.31, 85.59
+final_norm, 0.1, 100, 65.59, 85.83
+final_norm, 0.1, 200, 64.47, 85.44
+final_norm, 0.2, 5, 64.90, 79.32
+final_norm, 0.2, 10, 66.23, 82.30
+final_norm, 0.2, 15, 66.46, 83.40
+final_norm, 0.2, 20, 66.49, 84.23
+final_norm, 0.2, 50, 65.92, 85.47
+final_norm, 0.2, 100, 65.04, 85.66
+final_norm, 0.2, 200, 63.57, 85.08
+
+Best: Top1 70.09% with raw features at k=50, T=0.07
+Top5: 87.68%

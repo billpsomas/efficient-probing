@@ -1,0 +1,32 @@
+Training Log
+Model: ViT-L-14
+Model Details: 
+Dataset: imagenet1k
+Representation: cls
+Batch size per GPU: 256
+Base learning rate: 0.1
+Effective batch size: 4096
+Trainable Parameters: 769,000
+Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
+0, 6.4562, 5.93, 5.2231, 28.67, 53.73
+1, 3.2854, 58.09, 1.6714, 71.98, 92.53
+2, 1.0650, 78.35, 0.8479, 78.97, 95.78
+3, 0.6988, 82.24, 0.7087, 80.89, 96.46
+4, 0.5971, 83.89, 0.6562, 81.90, 96.79
+5, 0.5450, 84.93, 0.6332, 82.23, 96.87
+6, 0.5115, 85.63, 0.6226, 82.49, 96.90
+7, 0.4873, 86.16, 0.6192, 82.43, 97.04
+8, 0.4689, 86.55, 0.6212, 82.51, 96.96
+9, 0.4553, 86.83, 0.6248, 82.35, 96.91
+10, 0.4426, 87.13, 0.6283, 82.39, 96.96
+11, 0.4307, 87.39, 0.6357, 82.30, 96.83
+12, 0.4209, 87.60, 0.6458, 81.95, 96.83
+13, 0.4135, 87.80, 0.6481, 82.13, 96.78
+14, 0.4071, 87.91, 0.6621, 82.01, 96.75
+[early-stop] no gain > 0.05 pts for 8 epochs (best 82.49%); stopping at epoch 14 of 90
+
+Final Results:
+Max Accuracy: 82.51%
+Final Val Acc1: 82.01%
+Final Val Acc5: 96.75%
+Total Training Time: 3:25:27

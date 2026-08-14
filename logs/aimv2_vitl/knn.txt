@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: AIMv2 ViT-L/14
+Representation: pos
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 75.21, 87.36
+raw, 0.07, 10, 76.01, 89.80
+raw, 0.07, 15, 75.95, 90.84
+raw, 0.07, 20, 75.87, 91.41
+raw, 0.07, 50, 75.12, 92.37
+raw, 0.07, 100, 73.92, 92.61
+raw, 0.07, 200, 72.19, 92.24
+raw, 0.1, 5, 75.22, 87.36
+raw, 0.1, 10, 76.01, 89.80
+raw, 0.1, 15, 75.94, 90.84
+raw, 0.1, 20, 75.86, 91.41
+raw, 0.1, 50, 75.05, 92.37
+raw, 0.1, 100, 73.83, 92.60
+raw, 0.1, 200, 71.96, 92.21
+raw, 0.2, 5, 75.22, 87.36
+raw, 0.2, 10, 76.02, 89.80
+raw, 0.2, 15, 75.93, 90.84
+raw, 0.2, 20, 75.85, 91.41
+raw, 0.2, 50, 75.00, 92.37
+raw, 0.2, 100, 73.68, 92.59
+raw, 0.2, 200, 71.70, 92.19
+
+Best: Top1 76.02% with raw features at k=10, T=0.2
+Top5: 89.80%

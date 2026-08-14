@@ -1,0 +1,51 @@
+k-NN Evaluation
+Model: MAE ViT-B/16
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 32.65, 49.76
+raw, 0.07, 10, 34.46, 52.43
+raw, 0.07, 15, 35.20, 53.95
+raw, 0.07, 20, 35.57, 55.28
+raw, 0.07, 50, 35.52, 57.84
+raw, 0.07, 100, 34.79, 58.33
+raw, 0.07, 200, 33.62, 58.06
+raw, 0.1, 5, 32.65, 49.76
+raw, 0.1, 10, 34.46, 52.43
+raw, 0.1, 15, 35.20, 53.95
+raw, 0.1, 20, 35.57, 55.28
+raw, 0.1, 50, 35.52, 57.84
+raw, 0.1, 100, 34.79, 58.33
+raw, 0.1, 200, 33.62, 58.06
+raw, 0.2, 5, 32.65, 49.76
+raw, 0.2, 10, 34.45, 52.43
+raw, 0.2, 15, 35.20, 53.95
+raw, 0.2, 20, 35.57, 55.28
+raw, 0.2, 50, 35.52, 57.84
+raw, 0.2, 100, 34.79, 58.33
+raw, 0.2, 200, 33.61, 58.06
+final_norm, 0.07, 5, 15.27, 27.32
+final_norm, 0.07, 10, 15.85, 28.39
+final_norm, 0.07, 15, 16.05, 29.18
+final_norm, 0.07, 20, 16.14, 29.92
+final_norm, 0.07, 50, 15.90, 30.91
+final_norm, 0.07, 100, 15.34, 31.14
+final_norm, 0.07, 200, 14.11, 30.05
+final_norm, 0.1, 5, 15.27, 27.32
+final_norm, 0.1, 10, 15.85, 28.39
+final_norm, 0.1, 15, 16.05, 29.18
+final_norm, 0.1, 20, 16.14, 29.92
+final_norm, 0.1, 50, 15.90, 30.91
+final_norm, 0.1, 100, 15.34, 31.14
+final_norm, 0.1, 200, 14.10, 30.04
+final_norm, 0.2, 5, 15.27, 27.32
+final_norm, 0.2, 10, 15.85, 28.39
+final_norm, 0.2, 15, 16.04, 29.18
+final_norm, 0.2, 20, 16.13, 29.92
+final_norm, 0.2, 50, 15.89, 30.91
+final_norm, 0.2, 100, 15.34, 31.14
+final_norm, 0.2, 200, 14.10, 30.04
+
+Best: Top1 35.57% with raw features at k=20, T=0.07
+Top5: 55.28%

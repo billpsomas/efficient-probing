@@ -1,0 +1,51 @@
+k-NN Evaluation
+Model: iBOT ViT-L/16
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 73.42, 86.08
+raw, 0.07, 10, 73.92, 88.88
+raw, 0.07, 15, 73.79, 89.92
+raw, 0.07, 20, 73.69, 90.53
+raw, 0.07, 50, 72.88, 91.63
+raw, 0.07, 100, 72.13, 92.09
+raw, 0.07, 200, 71.44, 92.19
+raw, 0.1, 5, 73.40, 86.08
+raw, 0.1, 10, 73.80, 88.88
+raw, 0.1, 15, 73.54, 89.92
+raw, 0.1, 20, 73.43, 90.52
+raw, 0.1, 50, 72.31, 91.65
+raw, 0.1, 100, 71.17, 92.00
+raw, 0.1, 200, 70.30, 92.10
+raw, 0.2, 5, 73.20, 86.08
+raw, 0.2, 10, 73.57, 88.88
+raw, 0.2, 15, 73.12, 89.92
+raw, 0.2, 20, 73.01, 90.51
+raw, 0.2, 50, 71.49, 91.50
+raw, 0.2, 100, 69.92, 91.80
+raw, 0.2, 200, 68.43, 91.78
+final_norm, 0.07, 5, 73.21, 85.91
+final_norm, 0.07, 10, 73.52, 88.92
+final_norm, 0.07, 15, 73.40, 90.03
+final_norm, 0.07, 20, 73.25, 90.66
+final_norm, 0.07, 50, 72.37, 91.73
+final_norm, 0.07, 100, 71.65, 92.14
+final_norm, 0.07, 200, 71.02, 92.23
+final_norm, 0.1, 5, 73.17, 85.91
+final_norm, 0.1, 10, 73.34, 88.92
+final_norm, 0.1, 15, 73.12, 90.02
+final_norm, 0.1, 20, 72.88, 90.66
+final_norm, 0.1, 50, 71.67, 91.70
+final_norm, 0.1, 100, 70.60, 92.07
+final_norm, 0.1, 200, 69.72, 92.09
+final_norm, 0.2, 5, 73.04, 85.91
+final_norm, 0.2, 10, 73.10, 88.92
+final_norm, 0.2, 15, 72.68, 90.01
+final_norm, 0.2, 20, 72.42, 90.65
+final_norm, 0.2, 50, 70.72, 91.60
+final_norm, 0.2, 100, 69.19, 91.86
+final_norm, 0.2, 200, 67.43, 91.66
+
+Best: Top1 73.92% with raw features at k=10, T=0.07
+Top5: 88.88%

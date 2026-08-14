@@ -19,11 +19,21 @@ class CapiWrapper(nn.Module):
     def forward(self, x: torch.Tensor, return_backbone_features = False):
         # The CAPI model typically returns (global_repr, registers, feature_map).
         global_repr, registers, feature_map = self.capi_model(x)
-        # Then pass global_repr to the linear head
+        feature_map = feature_map.view(feature_map.size(0), -1, feature_map.size(-1))
         if self.features == 'cls':
             out = self.head(global_repr)
+        elif self.features == 'pos':
+            out = self.head(feature_map.mean(dim=1))
+        elif "all" in self.features:
+            # CAPI has no [CLS]; the pooled global_repr stands in for one. Without
+            # this branch '_all' silently returned the plain patch-token result,
+            # i.e. a wrong number rather than an error.
+            if global_repr.shape[-1] != feature_map.shape[-1]:
+                raise ValueError(
+                    f"CAPI global_repr ({global_repr.shape[-1]}) and feature_map "
+                    f"({feature_map.shape[-1]}) widths differ; '_all' cannot concatenate them.")
+            out = self.head(torch.concat([global_repr.unsqueeze(1), feature_map], dim=1))
         else:
-            feature_map = feature_map.view(feature_map.size(0), -1, feature_map.size(-1))
             out = self.head(feature_map)
         if return_backbone_features:
             if self.features == 'cls':

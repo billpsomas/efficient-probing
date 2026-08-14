@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: I-JEPA ViT-H/14
+Representation: pos
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 66.31, 78.70
+raw, 0.07, 10, 67.61, 81.20
+raw, 0.07, 15, 67.95, 82.45
+raw, 0.07, 20, 67.98, 83.23
+raw, 0.07, 50, 68.09, 85.06
+raw, 0.07, 100, 67.87, 85.61
+raw, 0.07, 200, 67.39, 85.79
+raw, 0.1, 5, 66.31, 78.70
+raw, 0.1, 10, 67.58, 81.20
+raw, 0.1, 15, 67.93, 82.45
+raw, 0.1, 20, 67.95, 83.23
+raw, 0.1, 50, 67.98, 85.06
+raw, 0.1, 100, 67.67, 85.59
+raw, 0.1, 200, 67.08, 85.72
+raw, 0.2, 5, 66.31, 78.70
+raw, 0.2, 10, 67.58, 81.20
+raw, 0.2, 15, 67.93, 82.45
+raw, 0.2, 20, 67.93, 83.22
+raw, 0.2, 50, 67.86, 85.04
+raw, 0.2, 100, 67.46, 85.57
+raw, 0.2, 200, 66.71, 85.65
+
+Best: Top1 68.09% with raw features at k=50, T=0.07
+Top5: 85.06%

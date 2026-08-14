@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: Hiera ViT-H/16
+Representation: pos
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 32.36, 49.09
+raw, 0.07, 10, 33.99, 51.27
+raw, 0.07, 15, 34.50, 52.90
+raw, 0.07, 20, 34.73, 54.24
+raw, 0.07, 50, 34.52, 56.76
+raw, 0.07, 100, 33.27, 56.84
+raw, 0.07, 200, 31.74, 55.98
+raw, 0.1, 5, 32.36, 49.09
+raw, 0.1, 10, 33.98, 51.27
+raw, 0.1, 15, 34.50, 52.90
+raw, 0.1, 20, 34.72, 54.24
+raw, 0.1, 50, 34.51, 56.76
+raw, 0.1, 100, 33.22, 56.82
+raw, 0.1, 200, 31.65, 55.95
+raw, 0.2, 5, 32.36, 49.09
+raw, 0.2, 10, 33.99, 51.27
+raw, 0.2, 15, 34.49, 52.90
+raw, 0.2, 20, 34.72, 54.24
+raw, 0.2, 50, 34.50, 56.75
+raw, 0.2, 100, 33.21, 56.81
+raw, 0.2, 200, 31.59, 55.94
+
+Best: Top1 34.73% with raw features at k=20, T=0.07
+Top5: 54.24%

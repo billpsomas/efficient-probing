@@ -341,7 +341,7 @@ class VisionTransformerSimMIM(nn.Module):
         elif return_features == "raw":
             ret = to_return
         elif return_features == "both":
-            ret = torch.concat([x_cls, x_pos], dim=2)
+            ret = torch.concat([x_cls.unsqueeze(1), x_pos], dim=1)
         else:
             raise NotImplementedError(return_features)
 

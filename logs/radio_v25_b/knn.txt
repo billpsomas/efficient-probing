@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: RADIO ViT-B/16
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 69.51, 83.58
+raw, 0.07, 10, 70.39, 86.75
+raw, 0.07, 15, 70.41, 88.02
+raw, 0.07, 20, 70.43, 88.70
+raw, 0.07, 50, 69.83, 90.07
+raw, 0.07, 100, 69.06, 90.50
+raw, 0.07, 200, 68.26, 90.74
+raw, 0.1, 5, 69.61, 83.58
+raw, 0.1, 10, 70.33, 86.75
+raw, 0.1, 15, 70.25, 88.04
+raw, 0.1, 20, 70.24, 88.76
+raw, 0.1, 50, 69.36, 90.10
+raw, 0.1, 100, 68.30, 90.49
+raw, 0.1, 200, 67.23, 90.63
+raw, 0.2, 5, 69.51, 83.58
+raw, 0.2, 10, 70.17, 86.75
+raw, 0.2, 15, 70.00, 88.04
+raw, 0.2, 20, 69.89, 88.76
+raw, 0.2, 50, 68.64, 90.04
+raw, 0.2, 100, 67.38, 90.34
+raw, 0.2, 200, 65.69, 90.30
+
+Best: Top1 70.43% with raw features at k=20, T=0.07
+Top5: 88.70%

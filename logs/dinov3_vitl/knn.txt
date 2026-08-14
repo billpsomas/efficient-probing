@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: DINOv3 ViT-L/16
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 82.21, 91.14
+raw, 0.07, 10, 82.92, 93.27
+raw, 0.07, 15, 83.12, 94.09
+raw, 0.07, 20, 83.18, 94.58
+raw, 0.07, 50, 83.32, 95.68
+raw, 0.07, 100, 83.37, 96.20
+raw, 0.07, 200, 83.39, 96.52
+raw, 0.1, 5, 82.42, 91.14
+raw, 0.1, 10, 83.12, 93.27
+raw, 0.1, 15, 83.28, 94.11
+raw, 0.1, 20, 83.30, 94.63
+raw, 0.1, 50, 83.20, 95.80
+raw, 0.1, 100, 83.04, 96.34
+raw, 0.1, 200, 82.99, 96.64
+raw, 0.2, 5, 82.45, 91.14
+raw, 0.2, 10, 83.10, 93.27
+raw, 0.2, 15, 83.06, 94.14
+raw, 0.2, 20, 82.91, 94.66
+raw, 0.2, 50, 82.51, 95.90
+raw, 0.2, 100, 82.19, 96.36
+raw, 0.2, 200, 81.82, 96.56
+
+Best: Top1 83.39% with raw features at k=200, T=0.07
+Top5: 96.52%

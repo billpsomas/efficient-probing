@@ -308,6 +308,11 @@ def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler, te
         checkpoint_paths = [output_dir / f'checkpoint-{epoch_name}.pth']
         for checkpoint_path in checkpoint_paths:
             to_save = {
+                # main_linprobe passes model_without_ddp.head here for a frozen-backbone
+                # probe, and the whole model when fine-tuning. Record which, so load_model
+                # targets the same module instead of trying to match head-only keys
+                # against the full model and silently loading nothing.
+                'saved_module': getattr(model_without_ddp, '_ep_saved_module', 'head'),
                 'model': model_without_ddp.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'epoch': epoch,
@@ -328,21 +333,45 @@ def load_model(args, model_without_ddp, optimizer=None, loss_scaler=None, strict
             checkpoint = torch.hub.load_state_dict_from_url(
                 args.resume, map_location='cpu', check_hash=True)
         else:
-            checkpoint = torch.load(args.resume, map_location='cpu')
+            # weights_only=False: our own save_model() stores `args` (an argparse
+            # Namespace) next to the tensors, which torch>=2.6 refuses to unpickle
+            # by default. Without this, every --auto_resume dies on startup.
+            checkpoint = torch.load(args.resume, map_location='cpu',
+                                    weights_only=False)
         state_dict = checkpoint['model']
 
-        # First try the requested strictness
+        # Resolve the module the checkpoint actually describes. A probe checkpoint holds
+        # only the head; loading it into the full model matches almost nothing, and the
+        # non-strict fallback below would then hand back a freshly initialised head while
+        # reporting success -- which is how four runs restarted training from scratch
+        # mid-schedule and were only caught by a train-accuracy discontinuity.
+        target = model_without_ddp
+        saved = checkpoint.get('saved_module')
+        own = set(model_without_ddp.state_dict())
+        if (saved == 'head' or not (set(state_dict) & own)) and hasattr(model_without_ddp, 'head'):
+            if set(state_dict) & set(model_without_ddp.head.state_dict()):
+                target = model_without_ddp.head
+                print('[load_model] checkpoint is head-only; loading into model.head')
+
         try:
-            model_without_ddp.load_state_dict(state_dict, strict=strict)
+            target.load_state_dict(state_dict, strict=strict)
         except RuntimeError as err:
             if strict:
-                # Retry non‑strict so we can resume from “head‑only” ckpts
                 print('[load_model] strict=True failed:\n', err,
                       '\n→ retrying with strict=False')
-                missing, unexpected = model_without_ddp.load_state_dict(
-                    state_dict, strict=False)
+                missing, unexpected = target.load_state_dict(state_dict, strict=False)
+                loaded = len(set(state_dict) & set(target.state_dict())) - len(unexpected)
                 print(f'[load_model] non‑strict load ok '
-                      f'(missing={len(missing)}, unexpected={len(unexpected)})')
+                      f'(missing={len(missing)}, unexpected={len(unexpected)}, '
+                      f'loaded={loaded})')
+                # A resume that restores (almost) nothing is worse than no resume: it
+                # continues the epoch counter and the LR schedule with untrained weights.
+                if loaded == 0:
+                    raise RuntimeError(
+                        f'resume from {args.resume} matched 0 of '
+                        f'{len(state_dict)} checkpoint tensors against '
+                        f'{type(target).__name__}. Refusing to continue with an '
+                        f'untrained head at epoch {checkpoint.get("epoch", "?")}.')
             else:
                 raise
         print("Resume checkpoint %s" % args.resume)
