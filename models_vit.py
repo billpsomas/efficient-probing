@@ -12,6 +12,7 @@ import timm.models.vision_transformer
 import torch.nn.functional as F
 
 from time import time
+from util.cls_features import map_cls_features
 
 
 CLS_FT_CHOICES = [
@@ -404,21 +405,7 @@ class VisionTransformer(timm.models.vision_transformer.VisionTransformer):
 
 
     def forward(self, x: torch.Tensor, return_features: str = "cls", return_block: Optional[int] = None, return_backbone_features = False) -> torch.Tensor:
-        #TODO: fix these flags
-        # Attentive poolings on patch tokens ONLY (default)
-        attentive_poolings = ["abmilp", "simpool", "esimpool",
-                            "clip", "siglip", "aim", "ep", "cbam", "coca",
-                            "cait", "dinovit", "jepa", "dolg", "cae"]
-        # Attentive poolings on patch tokens AND [cls] token
-        attentive_poolings_all = ["abmilp_all", "simpool_all", "esimpool_all",
-                    "clip_all", "siglip_all", "aim_all", "ep_all", "cbam_all", "coca_all",
-                    "cait_all", "dinovit_all", "jepa_all", "dolg_all", "cae_all"]
-        if return_features == "pos":
-            return_features = "gap"
-        elif return_features in attentive_poolings:
-            return_features = "pos"
-        elif return_features in attentive_poolings_all:
-            return_features = "both"
+        return_features = map_cls_features(return_features)
 
         x_backbone, attn, magnitudes = self.forward_features(x, return_features=return_features, shuffle_subsets=1, return_block=return_block)
         x = self.head(x_backbone)

@@ -1,12 +1,10 @@
 
 import argparse
 import datetime
-import json
 import numpy as np
 import os
 import time
 from pathlib import Path
-from fvcore.nn import FlopCountAnalysis
 
 import torch
 import torch.nn as nn
@@ -20,37 +18,21 @@ import torchvision.datasets as datasets
 from util.sun397 import SUN397
 from util.cub200 import CUB200
 
-import timm
 import open_clip
 
-import models_simmim
-import models_capi
-import models_more
 # assert timm.__version__ == "0.3.2" # version check
 # from timm.models.layers import trunc_normal_
 
 import util.misc as misc
 
-from poolings.abmilp import ABMILPHead
-from poolings.simpool import SimPool, SimPool_nolinears
-from poolings.clip.attention_pool import AttentionPoolLatent
-from poolings.clip.attention_pool2d import AttentionPool2d
-from poolings.jepa.attentive_pooler import AttentivePooler
-from poolings.aim import AttentionPoolingClassifier
-from poolings.cbam import CbamPooling
-from poolings.coca_pytorch import CrossAttention as CocaPooling
-from poolings.other_pool import CAPooling, DinoViTBlockPooling
-from poolings.dolg.dolg import SpatialAttention2d
-from poolings.cae_att import CAEAttentiveBlock
-from poolings.ep import EfficientProbing
+from backbones import build_backbone
+from probe_heads import build_probe_head
 
 from models_vit import CLS_FT_CHOICES
 from util.pos_embed import interpolate_pos_embed
 from util.misc import NativeScalerWithGradNormCount as NativeScaler, AMP_PRECISIONS
 from util.lars import LARS
 from util.crop import RandomResizedCrop
-
-import models_vit
 
 from engine_finetune import train_one_epoch, evaluate, knn_classifier, extract_features
 
@@ -89,7 +71,9 @@ def get_args_parser():
     parser.add_argument("--radio", action="store_true", default=False,
                         help="Load --model from the NVlabs/RADIO torch.hub repo")
     parser.add_argument("--input_size", default=224, type=int,
-                        help="Evaluation resolution; only used by --timm / --radio")
+                        help="Train and eval resolution. Applies to every backbone except "
+                             "--openclip, where open_clip supplies its own transforms. "
+                             "DiT/SiT take their latent grid from --dit_image_size instead.")
 
     # Optimizer parameters
     parser.add_argument('--weight_decay', type=float, default=0,
@@ -204,26 +188,325 @@ def get_args_parser():
     return parser
 
 
+# name -> (constructor, train kwargs, val kwargs). Root is --data_path unless the
+# entry names a subdirectory. The per-dataset asymmetries here are deliberate and
+# match what these benchmarks ship: FGVCAircraft and DTD evaluate on their 'val'
+# split rather than 'test', CUB200 has no download support, and STL10 is the only
+# one fetched on demand.
+DATASET_SPECS = {
+    "imagenet1k":    (datasets.ImageFolder,   {"subdir": "train"}, {"subdir": "val"}),
+    "places365":     (datasets.Places365,     {"split": "train-standard", "small": True, "download": False},
+                                              {"split": "val", "small": True, "download": False}),
+    "CIFAR100":      (datasets.CIFAR100,      {"train": True, "download": False},
+                                              {"train": False, "download": False}),
+    "StanfordCars":  (datasets.StanfordCars,  {"split": "train", "download": False},
+                                              {"split": "test", "download": False}),
+    "Food101":       (datasets.Food101,       {"split": "train", "download": False},
+                                              {"split": "test", "download": False}),
+    "FGVCAircraft":  (datasets.FGVCAircraft,  {"split": "train", "download": False},
+                                              {"split": "val", "download": False}),
+    "SUN397":        (SUN397,                 {"split": "train", "download": False},
+                                              {"split": "test", "download": False}),
+    "DTD":           (datasets.DTD,           {"split": "train", "download": False},
+                                              {"split": "val", "download": False}),
+    "OxfordIIITPet": (datasets.OxfordIIITPet, {"split": "trainval", "download": False},
+                                              {"split": "test", "download": False}),
+    "CUB200":        (CUB200,                 {"split": "train"}, {"split": "test"}),
+    "stl10":         (datasets.STL10,         {"split": "train", "download": True},
+                                              {"split": "test", "download": True}),
+}
+
+
+def build_datasets(args, transform_train, transform_val):
+    if args.dataset_name not in DATASET_SPECS:
+        raise ValueError(f'Unsupported dataset "{args.dataset_name}"')
+    ctor, train_kwargs, val_kwargs = DATASET_SPECS[args.dataset_name]
+
+    def build(kwargs, transform):
+        kwargs = dict(kwargs)
+        subdir = kwargs.pop("subdir", None)
+        root = os.path.join(args.data_path, subdir) if subdir else args.data_path
+        return ctor(root=root, transform=transform, **kwargs)
+
+    return build(train_kwargs, transform_train), build(val_kwargs, transform_val)
+
+
+IMAGENET_MEAN = [0.485, 0.456, 0.406]
+IMAGENET_STD = [0.229, 0.224, 0.225]
+
+
+def build_transforms(args):
+    """Train and eval transforms.
+
+    Under --openclip the transforms come from open_clip so each checkpoint gets the
+    normalisation it was trained with; every other backbone is fed ImageNet
+    statistics regardless of what it was pretrained on, and --input_size is ignored
+    in the open_clip case because open_clip decides resolution itself.
+
+    Called after the seed is set and before the datasets are built, and it must stay
+    there: the --openclip branch constructs (and throws away) a full CLIP model, so
+    moving this call would change every downstream random draw.
+    """
+    if args.openclip:
+        _, transform_train, transform_val = open_clip.create_model_and_transforms(
+            args.model, pretrained=args.openclip_pretrain)
+        return transform_train, transform_val
+
+    if args.train_aug == 'default':
+        transform_train = transforms.Compose([
+            RandomResizedCrop(args.input_size, interpolation=3),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)])
+    elif args.train_aug == 'aimv2':
+        transform_train = transforms.Compose([
+            RandomResizedCrop(args.input_size, scale=(0.08, 1.0), ratio=(0.75, 1.33),
+                              interpolation=transforms.InterpolationMode.BICUBIC),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.ColorJitter(0.3),
+            AutoAugment(policy=AutoAugmentPolicy.IMAGENET),  # corresponds to 'rand-m9-mstd0.5-inc1'
+            transforms.ToTensor(),
+            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)])
+
+    transform_val = transforms.Compose([
+        transforms.Resize(int(args.input_size * 256 / 224), interpolation=3),
+        transforms.CenterCrop(args.input_size),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)])
+    return transform_train, transform_val
+
+
+def build_samplers(args, dataset_train, dataset_val):
+    if not args.distributed:
+        return (0,
+                torch.utils.data.RandomSampler(dataset_train),
+                torch.utils.data.SequentialSampler(dataset_val))
+
+    num_tasks, global_rank = misc.get_world_size(), misc.get_rank()
+    sampler_train = torch.utils.data.DistributedSampler(
+        dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True)
+    print("Sampler_train = %s" % str(sampler_train))
+    if args.dist_eval:
+        if len(dataset_val) % num_tasks != 0:
+            print('Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. '
+                  'This will slightly alter validation results as extra duplicate entries are added to achieve '
+                  'equal num of samples per-process.')
+        sampler_val = torch.utils.data.DistributedSampler(
+            dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=True)  # shuffle=True to reduce monitor bias
+    else:
+        sampler_val = torch.utils.data.SequentialSampler(dataset_val)
+    return global_rank, sampler_train, sampler_val
+
+
+def build_dataloaders(args, dataset_train, dataset_val, sampler_train, sampler_val):
+    def worker_init_fn(worker_id):
+        os.sched_setaffinity(0, range(os.cpu_count()))
+
+    common = dict(
+        batch_size=args.batch_size,
+        num_workers=args.num_workers,
+        pin_memory=args.pin_mem,
+        worker_init_fn=worker_init_fn if args.dataloader_affinity_hack else None,
+    )
+    # k-NN featurises every training image exactly once, so it must not drop the
+    # ragged last batch the way training does.
+    loader_train = torch.utils.data.DataLoader(
+        dataset_train, sampler=sampler_train, drop_last=not args.knn_eval, **common)
+    loader_val = torch.utils.data.DataLoader(
+        dataset_val, sampler=sampler_val, drop_last=False, **common)
+    return loader_train, loader_val
+
+
+def load_finetune_checkpoint(model, args):
+    """Load --finetune weights into the frozen encoder.
+
+    Must run BEFORE build_probe_head: the checkpoint's classifier keys are
+    `head.weight`/`head.bias`, and once the head is a Sequential the same weights
+    would be looked for under `head.2.weight` and silently not load.
+
+    Skipped for --eval, which restores a fully trained model through --resume, and
+    for the loaders that take their own weights (--simmim, capi, dinov2). k-NN is
+    NOT skipped: it has no head to restore, so without this it would run on a
+    randomly initialised backbone and score chance (~1% top-1 on ImageNet).
+    """
+    if not args.finetune or args.eval or args.simmim or args.model.startswith(("capi", "dinov2")):
+        return
+
+    if Path(args.finetune).exists():
+        print("Interpreting", args.finetune, "as path")
+        # weights_only=False: MAE-style checkpoints carry an argparse Namespace
+        # alongside the tensors, which torch>=2.6 refuses to unpickle by default.
+        # Only load --finetune checkpoints you trust.
+        checkpoint_model = torch.load(args.finetune, map_location='cpu',
+                                      weights_only=False)[args.checkpoint_key]
+    else:
+        print("Interpreting", args.finetune, "as timm model")
+        from timm.models.vision_transformer import _create_vision_transformer
+
+        model_to_kwargs = {
+            "vit_tiny_patch16": dict(patch_size=16, embed_dim=192, depth=12, num_heads=12),
+            "vit_small_patch16": dict(patch_size=16, embed_dim=384, depth=12, num_heads=12),
+            "vit_base_patch16": dict(patch_size=16, embed_dim=768, depth=12, num_heads=12),
+            "vit_large_patch16": dict(patch_size=16, embed_dim=1024, depth=24, num_heads=16),
+            "vit_huge_patch14": dict(patch_size=14, embed_dim=1280, depth=32, num_heads=16),
+        }
+        checkpoint_model = _create_vision_transformer(
+            args.finetune, pretrained=True, **model_to_kwargs[args.model]).state_dict()
+
+    # Always drop the pretrained classifier: we are fitting a probe, so its weights
+    # are never wanted. The old guard only dropped it on a shape mismatch, which
+    # meant a checkpoint whose head happened to be 1000-way was loaded straight into
+    # the probe -- and MaskFeat ViT-L's 1000-way head is entirely NaN, so training
+    # died with "Loss is nan" at epoch 0 while its ViT-B sibling was fine.
+    for k in ['head.weight', 'head.bias']:
+        if k in checkpoint_model:
+            print(f"Removing key {k} from pretrained checkpoint")
+            del checkpoint_model[k]
+    # Some converted checkpoints carry NaN in tensors their pre-training never
+    # trained. Refuse them rather than letting a NaN reach the optimiser.
+    bad = [k for k, v in checkpoint_model.items()
+           if isinstance(v, torch.Tensor) and torch.isnan(v).any()]
+    if bad:
+        print(f"Dropping {len(bad)} NaN tensor(s) from the checkpoint: {bad[:6]}")
+        for k in bad:
+            del checkpoint_model[k]
+    dropped_on_purpose = set(bad) | {'head.weight', 'head.bias'}
+
+    try:
+        interpolate_pos_embed(model, checkpoint_model)
+    except Exception as e:
+        print("couldn't interpolate bc of", e)
+        print("Is [cls] switched off?", args.no_cls_token)
+
+    msg = model.load_state_dict(checkpoint_model, strict=False)
+    print(msg)
+
+    # A key may be missing either because it is one the probe supplies itself
+    # (head/oracle/fc) or because we deliberately removed it above -- the NaN
+    # tensors and the pretrained classifier. Anything else missing is a real
+    # mismatch and should still stop the run.
+    unexplained = sorted(k for k in msg.missing_keys
+                         if not (k.startswith(("head", "oracle", "fc")) or k in dropped_on_purpose))
+    assert not unexplained, unexplained
+
+
+def set_trainable(model, args):
+    """Freeze the encoder and train the probe only, unless --finetuning."""
+    trainable = args.finetuning
+    for _, p in model.named_parameters():
+        p.requires_grad = trainable
+    if not trainable:
+        for _, p in model.head.named_parameters():
+            p.requires_grad = True
+
+
+def build_optimizer(model_without_ddp, args):
+    param_groups = (model_without_ddp.parameters()
+                    if args.finetuning else model_without_ddp.head.parameters())
+    optimizers = {"lars": LARS, "adamw": AdamW}
+    make = optimizers.get(args.optimizer, SGD)
+    return make(param_groups, lr=args.lr, weight_decay=args.weight_decay)
+
+
+def run_knn_eval(args, model, model_without_ddp, device, data_loader_train, data_loader_val):
+    """Training-free k-NN on the same representation the linear probe would use.
+
+    Feature extraction is the whole cost here (one pass over train+val); the search
+    itself is seconds. So both k and the temperature are swept in memory rather than
+    re-extracting per temperature, which used to triple the bill for a difference in
+    the third decimal.
+
+    Reports two feature variants where the backbone allows it: `raw`, and
+    `final_norm` with the encoder's final LayerNorm applied. Which one is comparable
+    to published numbers depends on the encoder, so both are printed rather than one
+    being chosen here.
+    """
+    train_stats = extract_features(data_loader_train, model, device,
+                                   return_targets_and_preds=True,
+                                   cls_features=args.cls_features)
+    test_stats = extract_features(data_loader_val, model, device,
+                                  return_targets_and_preds=True,
+                                  cls_features=args.cls_features)
+    print(f"Train features shape: {train_stats['features'].shape}")
+    print(f"Train targets shape: {train_stats['targets'].shape}")
+    print(f"Test features shape: {test_stats['features'].shape}")
+    print(f"Test targets shape: {test_stats['targets'].shape}")
+
+    print("Features are ready!\nStart the k-NN classification.")
+    train_features = train_stats['features'].cuda()
+    test_features = test_stats['features'].cuda()
+    train_labels = train_stats['targets'].cuda()
+    test_labels = test_stats['targets'].cuda()
+
+    train_features = nn.functional.normalize(train_features, dim=1, p=2)
+    test_features = nn.functional.normalize(test_features, dim=1, p=2)
+
+    variants = [("raw", train_features, test_features)]
+    final_norm = getattr(model_without_ddp, "norm", None)
+    if final_norm is not None and hasattr(final_norm, "weight") \
+            and final_norm.weight.shape[0] == train_features.shape[1]:
+        with torch.no_grad():
+            fn = final_norm.to(train_features.device).float()
+            tr = nn.functional.normalize(fn(train_features), dim=1, p=2)
+            te = nn.functional.normalize(fn(test_features), dim=1, p=2)
+        variants.append(("final_norm", tr, te))
+        print("[knn] reporting both raw and final-LayerNorm features")
+    else:
+        print("[knn] no usable final LayerNorm on this backbone; raw features only")
+
+    temps = [float(t) for t in args.T_sweep.split(",")] if args.T_sweep else [args.T]
+    for vname, trf, tef in variants:
+      print(f"=== features={vname} ===")
+      for T in temps:
+        print(f"=== T={T} ===")
+        for k in [5,10,15,20,50,100,200]:
+            top1, top5 = knn_classifier(trf, train_labels, tef, test_labels, k, T=T)
+            print(f"{k}-NN classifier result: Top1: {top1}, Top5: {top5}")
+
+
+def write_log_header(log_file_path, args):
+    """Open training_log.txt and record the run's settings.
+
+    Never truncates an existing log when resuming: args.resume is already resolved
+    by --auto_resume at this point, and a resume that later fails would otherwise
+    destroy the epoch history of the run it is continuing.
+    """
+    if not misc.is_main_process():
+        return
+    resuming = bool(args.resume) and os.path.exists(log_file_path)
+    with open(log_file_path, "a" if resuming else "w") as log_file:
+        if resuming:
+            log_file.write(f"# resumed from {args.resume}\n")
+        else:
+            log_file.write("Training Log\n")
+            log_file.write(f"Model: {args.model}\n")
+            log_file.write(f"Model Details: {args.finetune}\n")
+            log_file.write(f"Dataset: {args.dataset_name}\n")
+            log_file.write(f"Representation: {args.cls_features}\n")
+            log_file.write(f"Batch size per GPU: {args.batch_size}\n")
+            log_file.write(f"Base learning rate: {args.blr}\n")
+
+
 def main(args):
+    """Probe a frozen encoder: build it, attach a head, train the head, report.
+
+    The order of the steps below is load-bearing in three places, and getting any
+    of them wrong fails silently rather than loudly:
+
+      * load_finetune_checkpoint BEFORE build_probe_head. The checkpoint's
+        classifier keys are `head.weight`/`head.bias`; once the head is a
+        Sequential they would be `head.2.weight` and simply would not match.
+      * misc.load_model (--resume) AFTER build_probe_head, for the mirror reason:
+        resume checkpoints hold the Sequential's keys.
+      * everything that constructs a module AFTER the seed is set. The head's
+        initialisation depends on how many random draws precede it, and
+        build_transforms is one of the culprits -- under --openclip it builds and
+        discards a whole CLIP model.
+    """
     misc.init_distributed_mode(args)
 
     log_file_path = os.path.join(args.output_dir, "training_log.txt")
-    if misc.is_main_process():
-        # Never truncate an existing log when resuming: args.resume is already
-        # resolved by --auto_resume at this point, and a resume that later fails
-        # would otherwise destroy the epoch history of the run it is continuing.
-        resuming = bool(args.resume) and os.path.exists(log_file_path)
-        with open(log_file_path, "a" if resuming else "w") as log_file:
-            if resuming:
-                log_file.write(f"# resumed from {args.resume}\n")
-            else:
-                log_file.write("Training Log\n")
-                log_file.write(f"Model: {args.model}\n")
-                log_file.write(f"Model Details: {args.finetune}\n")
-                log_file.write(f"Dataset: {args.dataset_name}\n")
-                log_file.write(f"Representation: {args.cls_features}\n")
-                log_file.write(f"Batch size per GPU: {args.batch_size}\n")
-                log_file.write(f"Base learning rate: {args.blr}\n")
+    write_log_header(log_file_path, args)
 
     print('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
     print("{}".format(args).replace(', ', ',\n'))
@@ -237,94 +520,16 @@ def main(args):
 
     cudnn.benchmark = True
 
-    if args.openclip:
-        _, transform_train, transform_val = open_clip.create_model_and_transforms(args.model, pretrained=args.openclip_pretrain)
-    else:
-        # Choose between weak or stronger augmentation
-        if args.train_aug == 'default':
-            transform_train = transforms.Compose([
-                    RandomResizedCrop(args.input_size, interpolation=3),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-        elif args.train_aug == 'aimv2':
-            transform_train = transforms.Compose([
-                    RandomResizedCrop(args.input_size, scale=(0.08, 1.0), ratio=(0.75, 1.33), interpolation=transforms.InterpolationMode.BICUBIC),
-                    transforms.RandomHorizontalFlip(p=0.5),
-                    transforms.ColorJitter(0.3),
-                    AutoAugment(policy=AutoAugmentPolicy.IMAGENET),  # corresponds to 'rand-m9-mstd0.5-inc1'
-                    transforms.ToTensor(),
-                    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-                ])
+    transform_train, transform_val = build_transforms(args)
 
-        transform_val = transforms.Compose([
-                transforms.Resize(int(args.input_size * 256 / 224), interpolation=3),
-                transforms.CenterCrop(args.input_size),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-    
     if args.knn_eval:
         transform_train = transform_val
 
-    if args.dataset_name == 'imagenet1k':
-        dataset_train = datasets.ImageFolder(os.path.join(args.data_path, 'train'), transform=transform_train)
-        dataset_val = datasets.ImageFolder(os.path.join(args.data_path, 'val'), transform=transform_val)
-    elif args.dataset_name == 'places365':
-        dataset_train = datasets.Places365(root=args.data_path, split='train-standard', small=True, download=False, transform=transform_train)
-        dataset_val = datasets.Places365(root=args.data_path, split='val', small=True, download=False, transform=transform_val)
-    elif args.dataset_name == 'CIFAR100':
-        dataset_train = datasets.CIFAR100(root=args.data_path, train=True, download=False, transform=transform_train)
-        dataset_val = datasets.CIFAR100(root=args.data_path, train=False, download=False, transform=transform_val)
-    elif args.dataset_name == 'StanfordCars':
-        dataset_train = datasets.StanfordCars(root=args.data_path, split='train', download=False, transform=transform_train)
-        dataset_val = datasets.StanfordCars(root=args.data_path, split='test', download=False, transform=transform_val)
-    elif args.dataset_name == 'Food101':
-        dataset_train = datasets.Food101(root=args.data_path, split='train', download=False, transform=transform_train)
-        dataset_val = datasets.Food101(root=args.data_path, split='test', download=False, transform=transform_val)
-    elif args.dataset_name == 'FGVCAircraft':
-        dataset_train = datasets.FGVCAircraft(root=args.data_path, split='train', download=False, transform=transform_train)
-        dataset_val = datasets.FGVCAircraft(root=args.data_path, split='val', download=False, transform=transform_val)
-    elif args.dataset_name == 'SUN397':
-        dataset_train = SUN397(root=args.data_path, split='train', download=False, transform=transform_train)
-        dataset_val = SUN397(root=args.data_path, split='test', download=False, transform=transform_val)
-    elif args.dataset_name == 'DTD':
-        dataset_train = datasets.DTD(root=args.data_path, split='train', download=False, transform=transform_train)
-        dataset_val = datasets.DTD(root=args.data_path, split='val', download=False, transform=transform_val)
-    elif args.dataset_name == 'OxfordIIITPet':
-        dataset_train = datasets.OxfordIIITPet(root=args.data_path, split='trainval', download=False, transform=transform_train)
-        dataset_val = datasets.OxfordIIITPet(root=args.data_path, split='test', download=False, transform=transform_val)
-    elif args.dataset_name == 'CUB200':
-        dataset_train = CUB200(root=args.data_path, split='train', transform=transform_train)
-        dataset_val = CUB200(root=args.data_path, split='test', transform=transform_val)
-    elif args.dataset_name == 'stl10':
-        dataset_train = datasets.STL10(args.data_path, split="train", transform=transform_train, download=True)
-        dataset_val = datasets.STL10(args.data_path, split='test', transform=transform_val, download=True)
-    else:
-        raise ValueError(f'Unsupported dataset "{args.dataset_name}"')
+    dataset_train, dataset_val = build_datasets(args, transform_train, transform_val)
     print(dataset_train)
     print(dataset_val)
 
-
-    if args.distributed:
-        num_tasks = misc.get_world_size()
-        global_rank = misc.get_rank()
-        sampler_train = torch.utils.data.DistributedSampler(
-            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
-        )
-        print("Sampler_train = %s" % str(sampler_train))
-        if args.dist_eval:
-            if len(dataset_val) % num_tasks != 0:
-                print('Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. '
-                      'This will slightly alter validation results as extra duplicate entries are added to achieve '
-                      'equal num of samples per-process.')
-            sampler_val = torch.utils.data.DistributedSampler(
-                dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=True)  # shuffle=True to reduce monitor bias
-        else:
-            sampler_val = torch.utils.data.SequentialSampler(dataset_val)
-    else:
-        global_rank = 0
-        sampler_train = torch.utils.data.RandomSampler(dataset_train)
-        sampler_val = torch.utils.data.SequentialSampler(dataset_val)
+    global_rank, sampler_train, sampler_val = build_samplers(args, dataset_train, dataset_val)
 
     eff_batch_size = args.batch_size * args.accum_iter * misc.get_world_size()
     args.eff_batch_size = eff_batch_size
@@ -339,363 +544,16 @@ def main(args):
     else:
         log_writer = None
 
-    def worker_init_fn(worker_id):
-        os.sched_setaffinity(0, range(os.cpu_count()))
+    data_loader_train, data_loader_val = build_dataloaders(
+        args, dataset_train, dataset_val, sampler_train, sampler_val)
 
-    if args.knn_eval:
-        drop_last = False
-    else:
-        drop_last = True
+    model = build_backbone(args, device)
 
-    data_loader_train = torch.utils.data.DataLoader(
-        dataset_train, sampler=sampler_train,
-        batch_size=args.batch_size,
-        num_workers=args.num_workers,
-        pin_memory=args.pin_mem,
-        drop_last=drop_last,
-        worker_init_fn=worker_init_fn if args.dataloader_affinity_hack else None
-    )
+    load_finetune_checkpoint(model, args)
 
-    data_loader_val = torch.utils.data.DataLoader(
-        dataset_val, sampler=sampler_val,
-        batch_size=args.batch_size,
-        num_workers=args.num_workers,
-        pin_memory=args.pin_mem,
-        drop_last=False,
-        worker_init_fn=worker_init_fn if args.dataloader_affinity_hack else None
-    )
+    build_probe_head(model, args)
 
-    if args.model.startswith("capi"):    
-        capi_backbone = torch.hub.load('facebookresearch/capi:main', args.model)
-        model = models_capi.CapiWrapper(
-            capi_model=capi_backbone,
-            num_classes=args.nb_classes,
-            features=args.cls_features
-        )
-    elif args.model.startswith("dinov2"):
-        dinov2_backbone = torch.hub.load('facebookresearch/dinov2', args.model)
-        model = models_more.DinoWrapper(
-            dino_model=dinov2_backbone, 
-            num_classes=args.nb_classes,
-            features=args.cls_features
-        )
-    elif args.model.startswith("aimv2"):
-        from aim.v2.utils import load_pretrained
-        model = models_more.AIMv2Wrapper(
-            aimv2_model=load_pretrained(args.model, backend="torch"),
-            num_classes=args.nb_classes, features=args.cls_features)
-    elif args.model.startswith("franca"):
-        # torch.hub defaults to the In21K weights, but release v1.0.0 of valeoai/Franca
-        # never uploaded franca_vitl14_In21K.pth (and its ViT-g In21K chunk is 0 bytes),
-        # so ViT-L is only obtainable with weights="LAION".
-        franca_kwargs = dict(use_rasa_head=args.use_rasa_head)
-        if args.franca_weights:
-            franca_kwargs["weights"] = args.franca_weights
-            # Upstream quirk: _make_franca_model defaults to img_size=224 and only
-            # franca_vitb14 raises it to 518 for non-DINOv2 weights, but the ViT-L
-            # LAION checkpoint is 518-trained (pos_embed is 1+37^2 = 1370 tokens).
-            # Building at 224 fails the load outright; building at 518 matches the
-            # checkpoint and the DINOv2-derived forward interpolates for our inputs.
-            if args.franca_weights.upper() == "LAION" and args.franca_img_size:
-                franca_kwargs["img_size"] = args.franca_img_size
-        if misc.is_dist_avail_and_initialized():
-            if misc.get_rank() == 0:
-                _ = torch.hub.load("valeoai/Franca", args.model, **franca_kwargs)
-            torch.distributed.barrier()
-        model = models_more.FrancaWrapper(
-            franca_model=torch.hub.load("valeoai/Franca", args.model, **franca_kwargs),
-            num_classes=args.nb_classes, features=args.cls_features,
-            use_rasa_head=args.use_rasa_head)
-    elif args.model.startswith(("DiT", "SiT")):
-        from diffusers.models import AutoencoderKL
-        is_dit = args.model.startswith("DiT")
-        if is_dit:
-            from util.DiT.models import DiT_models as _MODELS
-            from util.DiT.download import find_model as _find
-        else:
-            from util.SiT.models import SiT_models as _MODELS
-            from util.SiT.download import find_model as _find
-        backbone = _MODELS[args.model](input_size=args.dit_image_size // 8,
-                                       num_classes=args.nb_classes)
-        ckpt = args.dit_ckpt or f"{args.model.replace('/', '-')}-{args.dit_image_size}x{args.dit_image_size}.pt"
-        backbone.load_state_dict(_find(ckpt))
-        vae = AutoencoderKL.from_pretrained(f"stabilityai/sd-vae-ft-{args.vae}").to(device).eval()
-        model = models_more.DiTWrapper(
-            dit_model=backbone, vae_model=vae, num_classes=args.nb_classes,
-            features=args.cls_features, finetuning=args.finetuning)
-    elif args.model.startswith("dinov3"):
-        if not args.dinov3_weights:
-            raise ValueError("--model dinov3_* requires --dinov3_weights (the weights are licence-gated)")
-        if misc.is_dist_avail_and_initialized():
-            if misc.get_rank() == 0:
-                _ = torch.hub.load("facebookresearch/dinov3", args.model, weights=args.dinov3_weights)
-            torch.distributed.barrier()
-        dinov3_backbone = torch.hub.load("facebookresearch/dinov3", args.model, weights=args.dinov3_weights)
-        model = models_more.DinoWrapper(
-            dino_model=dinov3_backbone,
-            num_classes=args.nb_classes,
-            features=args.cls_features,
-        )
-    elif args.timm:
-        backbone = timm.create_model(args.model, pretrained=True, num_classes=0)
-        model = models_more.TimmWrapper(
-            timm_model=backbone,
-            num_classes=args.nb_classes,
-            features=args.cls_features,
-            num_prefix_tokens=getattr(backbone, "num_prefix_tokens", 0),
-        )
-    elif args.radio:
-        if misc.is_dist_avail_and_initialized():
-            if misc.get_rank() == 0:
-                _ = torch.hub.load("NVlabs/RADIO", "radio_model", version=args.model, progress=True)
-            torch.distributed.barrier()
-        radio_backbone = torch.hub.load("NVlabs/RADIO", "radio_model", version=args.model, progress=True)
-        model = models_more.RadioWrapper(
-            radio_model=radio_backbone,
-            num_classes=args.nb_classes,
-            features=args.cls_features,
-        )
-    elif args.openclip:
-        backbone, _, _ = open_clip.create_model_and_transforms(args.model, pretrained=args.openclip_pretrain)
-        vision_encoder = backbone.visual
-        model = models_more.CLIPWrapper(
-            clip_model=vision_encoder,
-            num_classes=args.nb_classes,
-            features=args.cls_features
-        )
-    elif args.simmim:
-        model = models_simmim.__dict__[args.model](
-            checkpoint_path=args.finetune
-        )
-    else:
-        cls_kwargs = dict()
-        if "huge" in args.model:
-            cls_kwargs["class_token"] = not args.no_cls_token
-        model: models_vit.VisionTransformer = models_vit.__dict__[args.model](
-            num_classes=args.nb_classes,
-            **cls_kwargs
-        )
-
-    # NOTE: --knn_eval used to be excluded here, which meant --finetune weights were
-    # never loaded and k-NN ran on a randomly initialised backbone (~1% top-1 on
-    # ImageNet, i.e. chance). --eval stays excluded because it restores a full
-    # trained model through --resume; k-NN has no head to restore and needs the
-    # backbone weights loaded here.
-    if args.finetune and not args.eval and not args.simmim and not args.model.startswith(("capi", "dinov2")):
-        if Path(args.finetune).exists():
-            print("Interpreting", args.finetune, "as path")
-            # weights_only=False: MAE-style checkpoints carry an argparse Namespace
-            # alongside the tensors, which torch>=2.6 refuses to unpickle by default.
-            # Only load --finetune checkpoints you trust.
-            checkpoint_model = torch.load(args.finetune, map_location='cpu',
-                                          weights_only=False)[args.checkpoint_key]
-        else:
-            print("Interpreting", args.finetune, "as timm model")
-            from timm.models.vision_transformer import _create_vision_transformer
-
-            model_to_kwargs = {
-                "vit_tiny_patch16": dict(patch_size=16, embed_dim=192, depth=12, num_heads=12),
-                "vit_small_patch16": dict(patch_size=16, embed_dim=384, depth=12, num_heads=12),
-                "vit_base_patch16": dict(patch_size=16, embed_dim=768, depth=12, num_heads=12),
-                "vit_large_patch16": dict(patch_size=16, embed_dim=1024, depth=24, num_heads=16),
-                "vit_huge_patch14": dict(patch_size=14, embed_dim=1280, depth=32, num_heads=16),
-            }
-            model_kwargs = model_to_kwargs[args.model]
-            checkpoint_model = _create_vision_transformer(args.finetune, pretrained=True, **model_kwargs).state_dict()
-
-        state_dict = model.state_dict()
-        # Always drop the pretrained classifier: we are fitting a probe, so its weights
-        # are never wanted. The old guard only dropped it on a shape mismatch, which
-        # meant a checkpoint whose head happened to be 1000-way was loaded straight into
-        # the probe -- and MaskFeat ViT-L's 1000-way head is entirely NaN, so training
-        # died with "Loss is nan" at epoch 0 while its ViT-B sibling was fine.
-        for k in ['head.weight', 'head.bias']:
-            if k in checkpoint_model:
-                print(f"Removing key {k} from pretrained checkpoint")
-                del checkpoint_model[k]
-        # Some converted checkpoints carry NaN in tensors their pre-training never
-        # trained. Refuse them rather than letting a NaN reach the optimiser.
-        bad = [k for k, v in checkpoint_model.items()
-               if isinstance(v, torch.Tensor) and torch.isnan(v).any()]
-        if bad:
-            print(f"Dropping {len(bad)} NaN tensor(s) from the checkpoint: {bad[:6]}")
-            for k in bad:
-                del checkpoint_model[k]
-        dropped_on_purpose = set(bad) | {'head.weight', 'head.bias'}
-
-        # interpolate position embedding
-        try:
-            interpolate_pos_embed(model, checkpoint_model)
-        except Exception as e:
-            print("couldn't interpolate bc of", e)
-            print("Is [cls] switched off?", args.no_cls_token)
-
-        # load pre-trained model
-        msg = model.load_state_dict(checkpoint_model, strict=False)
-        print(msg)
-
-        # A key may be missing either because it is one the probe supplies itself
-        # (head/oracle/fc) or because we deliberately removed it above -- the NaN
-        # tensors and the pretrained classifier. Anything else missing is a real
-        # mismatch and should still stop the run.
-        allowed = locals().get('dropped_on_purpose', set())
-        assert all([
-            k.startswith("head") or k.startswith("oracle") or k.startswith("fc")
-            or k in allowed
-            for k in msg.missing_keys
-        ]), sorted(k for k in msg.missing_keys
-                   if not (k.startswith(("head", "oracle", "fc")) or k in allowed))
-
-    if args.cls_features == "abmilp" or args.cls_features == "abmilp_all":
-        abmilp = ABMILPHead(
-                dim=model.head.in_features,
-                self_attention_apply_to=args.abmilp_sa,
-                activation=args.abmilp_act,
-                depth=args.abmilp_depth,
-                cond=args.abmilp_cond,
-                content=args.abmilp_content,
-                num_patches=model.patch_embed.num_patches,
-
-            )
-        model.head = torch.nn.Sequential(
-            abmilp,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "simpool" or args.cls_features == "simpool_all":
-        # Optionally expose more SimPool-related hyperparams as CLI args
-        simpool = SimPool(
-            dim=model.head.in_features,
-            num_heads=1,
-            qkv_bias=False,
-            qk_scale=None,
-            gamma=None,
-            use_beta=False
-        )
-        # Now wrap it exactly like abmilp
-        model.head = torch.nn.Sequential(
-            simpool,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "esimpool" or args.cls_features == "esimpool_all":
-        simpool_nolinears = SimPool_nolinears(
-            dim=model.head.in_features,
-            num_heads=12,
-            qk_scale=None,
-            gamma=None,
-            use_beta=False
-        )
-        model.head = torch.nn.Sequential(
-            simpool_nolinears,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "clip" or args.cls_features == "clip_all":
-        if args.model == 'capi_vitl14_in1k':
-            feat_size = 16
-        else:
-            feat_size = 14
-        clip = AttentionPool2d(
-            in_features=model.head.in_features,
-            feat_size=feat_size
-        )
-        model.head = torch.nn.Sequential(
-            clip,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "siglip" or args.cls_features == "siglip_all":
-        siglip = AttentionPoolLatent(in_features=model.head.in_features)
-        model.head = torch.nn.Sequential(
-            siglip,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "aim" or args.cls_features == "aim_all":
-        aim = AttentionPoolingClassifier(dim=model.head.in_features, num_heads=args.num_heads)
-        model.head = torch.nn.Sequential(
-            aim,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "ep" or args.cls_features == "ep_all":
-        ep = EfficientProbing(dim=model.head.in_features, num_queries=args.ep_queries, d_out=args.d_out)
-        new_classifier = torch.nn.Linear(model.head.in_features // args.d_out, args.nb_classes, bias=True)
-        model.head = torch.nn.Sequential(
-            ep,
-            torch.nn.BatchNorm1d(model.head.in_features // args.d_out, affine=False, eps=1e-6),
-            new_classifier
-        )
-    elif args.cls_features == "cbam" or args.cls_features == "cbam_all":
-        cbam = CbamPooling(
-            channels=model.head.in_features,
-            spatial_kernel_size=7
-        )
-        model.head = torch.nn.Sequential(
-            cbam,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "coca" or args.cls_features == "coca_all":
-        coca = CocaPooling(dim=model.head.in_features)
-        model.head = torch.nn.Sequential(
-            coca,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "cait" or args.cls_features == "cait_all":
-        cait = CAPooling(embed_dim=model.head.in_features)
-        model.head = torch.nn.Sequential(
-            cait,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "dinovit" or args.cls_features == "dinovit_all":
-        dinovit_block = DinoViTBlockPooling(d_model=model.head.in_features)
-        model.head = torch.nn.Sequential(
-            dinovit_block,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "jepa" or args.cls_features == "jepa_all":
-        jepa = AttentivePooler(embed_dim=model.head.in_features, num_heads=args.num_heads)
-        model.head = torch.nn.Sequential(
-            jepa,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "dolg" or args.cls_features == "dolg_all":
-        dolg = SpatialAttention2d(
-            in_c=model.head.in_features,
-            s3_dim=model.head.in_features,
-            with_aspp=False
-        )
-        model.head = torch.nn.Sequential(
-            dolg,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    elif args.cls_features == "cae" or args.cls_features == "cae_all":
-        cae_att = CAEAttentiveBlock(dim=model.head.in_features)
-        model.head = torch.nn.Sequential(
-            cae_att,
-            torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6),
-            model.head
-        )
-    else:
-        model.head = torch.nn.Sequential(torch.nn.BatchNorm1d(model.head.in_features, affine=False, eps=1e-6), model.head)
-    
-    if args.finetuning:
-        # unfreeze all
-        for _, p in model.named_parameters():
-            p.requires_grad = True
-    else:
-        # freeze all but the head
-        for _, p in model.named_parameters():
-            p.requires_grad = False
-        for _, p in model.head.named_parameters():
-            p.requires_grad = True
+    set_trainable(model, args)
 
     model.to(device)
 
@@ -704,8 +562,6 @@ def main(args):
 
     print('number of params (M): %.2f' % (n_parameters / 1.e6))
 
-    eff_batch_size = args.batch_size * args.accum_iter * misc.get_world_size()
-
     # Log to file
     if misc.is_main_process():
         with open(log_file_path, "a") as log_file:
@@ -713,35 +569,6 @@ def main(args):
             log_file.write(f"Trainable Parameters: {n_parameters:,}\n")
             log_file.write("Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5\n")
 
-    # NOTE: Added extra computation info to log file
-    # Measure FLOPS for a 3x224x224 image
-    '''
-    model.eval()
-    flops = FlopCountAnalysis(model, torch.randn(8, 3, 224, 224).to(device))
-    model.train()
-    flops_count = flops.total()  # Total FLOPS
-    flops_count_gflops = flops_count / 1e9  # Convert to GFLOPS
-    # Measure throughput during evaluation on 10 batches
-    torch.cuda.synchronize()
-    start_t = time.time()
-    with torch.no_grad():
-        for i, (images, _) in enumerate(data_loader_val):
-            images = images.to(device, non_blocking=True)
-            outputs = model(images)
-            if i == 10:  # Evaluate throughput on a subset for consistency
-                break
-    end_t = time.time()
-    throughput = (10 * args.batch_size) / (end_t - start_t)  # Images per second
-    
-    # Log to file
-    if misc.is_main_process():
-        with open(log_file_path, "a") as log_file:
-            log_file.write(f"Effective batch size: {eff_batch_size}\n")
-            log_file.write(f"Trainable Parameters: {n_parameters:,}\n")
-            log_file.write(f"Model FLOPS: {flops_count_gflops:.2f} GFLOPS\n")
-            log_file.write(f"Throughput (10 batches): {throughput:.2f} images/sec\n")
-            log_file.write("Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5\n")
-    '''
     if args.lr is None:  # only base_lr is specified
         args.lr = args.blr * eff_batch_size / 256
 
@@ -755,16 +582,7 @@ def main(args):
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)
         model_without_ddp = model.module
 
-    param_groups = (model_without_ddp.parameters()
-                    if args.finetuning else model_without_ddp.head.parameters())
-
-    if args.optimizer == "lars":
-        optimizer = LARS(param_groups, lr=args.lr, weight_decay=args.weight_decay)
-    elif args.optimizer == "adamw":
-        optimizer = AdamW(param_groups, lr=args.lr, weight_decay=args.weight_decay)
-    else:
-        optimizer = SGD(param_groups, lr=args.lr, weight_decay=args.weight_decay)
-
+    optimizer = build_optimizer(model_without_ddp, args)
     print(optimizer)
     loss_scaler = NativeScaler()
 
@@ -778,7 +596,7 @@ def main(args):
                         optimizer=optimizer,
                         loss_scaler=loss_scaler,
                         strict=True)
-    except RuntimeError as err:
+    except RuntimeError:
         print('[resume] strict load failed, falling back to strict=False '
               '(checkpoint probably contains only the head) – '
               'backbone params will stay as loaded from --finetune.')
@@ -789,52 +607,8 @@ def main(args):
                         strict=False)
 
     if args.knn_eval:
-        train_stats = extract_features(data_loader_train, model, device,
-                                       return_targets_and_preds=True,
-                                       cls_features=args.cls_features)
-        test_stats = extract_features(data_loader_val, model, device,
-                                      return_targets_and_preds=True,
-                                      cls_features=args.cls_features)
-        print(f"Train features shape: {train_stats['features'].shape}")
-        print(f"Train targets shape: {train_stats['targets'].shape}")
-        print(f"Test features shape: {test_stats['features'].shape}")
-        print(f"Test targets shape: {test_stats['targets'].shape}")
-
-        print("Features are ready!\nStart the k-NN classification.")
-        train_features = train_stats['features'].cuda()
-        test_features = test_stats['features'].cuda()
-        train_labels = train_stats['targets'].cuda()
-        test_labels = test_stats['targets'].cuda()
-
-        train_features = nn.functional.normalize(train_features, dim=1, p=2)
-        test_features = nn.functional.normalize(test_features, dim=1, p=2)
-
-        # Feature extraction is the whole cost here (one pass over train+val); the
-        # search itself is seconds. So sweep both k and the temperature in memory
-        # rather than re-extracting per temperature, which used to triple the bill
-        # for a difference in the third decimal.
-        variants = [("raw", train_features, test_features)]
-        bb = model_without_ddp
-        final_norm = getattr(bb, "norm", None)
-        if final_norm is not None and hasattr(final_norm, "weight") \
-                and final_norm.weight.shape[0] == train_features.shape[1]:
-            with torch.no_grad():
-                fn = final_norm.to(train_features.device).float()
-                tr = nn.functional.normalize(fn(train_features), dim=1, p=2)
-                te = nn.functional.normalize(fn(test_features), dim=1, p=2)
-            variants.append(("final_norm", tr, te))
-            print("[knn] reporting both raw and final-LayerNorm features")
-        else:
-            print("[knn] no usable final LayerNorm on this backbone; raw features only")
-
-        temps = [float(t) for t in args.T_sweep.split(",")] if args.T_sweep else [args.T]
-        for vname, trf, tef in variants:
-          print(f"=== features={vname} ===")
-          for T in temps:
-            print(f"=== T={T} ===")
-            for k in [5,10,15,20,50,100,200]:
-                top1, top5 = knn_classifier(trf, train_labels, tef, test_labels, k, T=T)
-                print(f"{k}-NN classifier result: Top1: {top1}, Top5: {top5}")
+        run_knn_eval(args, model, model_without_ddp, device,
+                     data_loader_train, data_loader_val)
         exit(0)
 
     if args.eval:
