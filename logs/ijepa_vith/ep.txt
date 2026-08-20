@@ -1,6 +1,6 @@
 Training Log
 Model: vit_huge_patch14
-Model Details: /scratch/project_465003083/psomasva/checkpoints/converted_checkpoints/vit_huge_patch14_224.ijepa/checkpoint-799.pth
+Model Details: <checkpoints>/vit_huge_patch14_224.ijepa/checkpoint-799.pth
 Dataset: imagenet1k
 Representation: ep
 Batch size per GPU: 128

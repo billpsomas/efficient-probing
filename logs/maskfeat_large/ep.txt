@@ -103,4 +103,4 @@ Final Results:
 Max Accuracy: 69.63%
 Final Val Acc1: 69.56%
 Final Val Acc5: 87.98%
-Total Training Time: 20:36:21
+Total Training Time: 20:04:36

@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: MetaCLIP2 ViT-bigG/14-378
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 79.71, 90.17
+raw, 0.07, 10, 80.49, 92.65
+raw, 0.07, 15, 80.59, 93.58
+raw, 0.07, 20, 80.58, 94.00
+raw, 0.07, 50, 80.14, 94.95
+raw, 0.07, 100, 79.43, 95.12
+raw, 0.07, 200, 78.65, 94.94
+raw, 0.1, 5, 79.71, 90.17
+raw, 0.1, 10, 80.33, 92.65
+raw, 0.1, 15, 80.37, 93.59
+raw, 0.1, 20, 80.34, 94.00
+raw, 0.1, 50, 79.62, 94.91
+raw, 0.1, 100, 78.66, 95.01
+raw, 0.1, 200, 77.67, 94.70
+raw, 0.2, 5, 79.63, 90.17
+raw, 0.2, 10, 80.12, 92.65
+raw, 0.2, 15, 79.99, 93.59
+raw, 0.2, 20, 79.90, 93.99
+raw, 0.2, 50, 78.91, 94.83
+raw, 0.2, 100, 77.74, 94.82
+raw, 0.2, 200, 76.30, 94.44
+
+Best: Top1 80.59% with raw features at k=15, T=0.07
+Top5: 93.58%

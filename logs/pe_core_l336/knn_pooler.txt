@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: pe_core_l336 (pooled output)
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 81.81, 91.61
+raw, 0.07, 10, 82.51, 94.06
+raw, 0.07, 15, 82.71, 94.88
+raw, 0.07, 20, 82.66, 95.30
+raw, 0.07, 50, 82.09, 96.32
+raw, 0.07, 100, 81.50, 96.49
+raw, 0.07, 200, 80.96, 96.50
+raw, 0.1, 5, 81.76, 91.61
+raw, 0.1, 10, 82.41, 94.06
+raw, 0.1, 15, 82.56, 94.88
+raw, 0.1, 20, 82.43, 95.30
+raw, 0.1, 50, 81.63, 96.30
+raw, 0.1, 100, 80.81, 96.45
+raw, 0.1, 200, 79.97, 96.37
+raw, 0.2, 5, 81.69, 91.61
+raw, 0.2, 10, 82.11, 94.06
+raw, 0.2, 15, 82.21, 94.87
+raw, 0.2, 20, 82.00, 95.30
+raw, 0.2, 50, 81.05, 96.26
+raw, 0.2, 100, 79.91, 96.30
+raw, 0.2, 200, 78.67, 96.14
+
+Best: Top1 82.71% with raw features at k=15, T=0.07
+Top5: 94.88%

@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: DiT DiT-XL/2
+Representation: pos
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 4.20, 9.83
+raw, 0.07, 10, 4.50, 10.21
+raw, 0.07, 15, 4.78, 10.61
+raw, 0.07, 20, 4.96, 11.00
+raw, 0.07, 50, 5.25, 12.26
+raw, 0.07, 100, 5.18, 12.78
+raw, 0.07, 200, 4.94, 12.71
+raw, 0.1, 5, 4.21, 9.83
+raw, 0.1, 10, 4.50, 10.21
+raw, 0.1, 15, 4.78, 10.61
+raw, 0.1, 20, 4.96, 11.00
+raw, 0.1, 50, 5.25, 12.25
+raw, 0.1, 100, 5.17, 12.77
+raw, 0.1, 200, 4.94, 12.71
+raw, 0.2, 5, 4.21, 9.83
+raw, 0.2, 10, 4.50, 10.21
+raw, 0.2, 15, 4.78, 10.61
+raw, 0.2, 20, 4.95, 11.00
+raw, 0.2, 50, 5.24, 12.25
+raw, 0.2, 100, 5.17, 12.76
+raw, 0.2, 200, 4.93, 12.70
+
+Best: Top1 5.25% with raw features at k=50, T=0.07
+Top5: 12.26%

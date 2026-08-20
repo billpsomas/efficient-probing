@@ -1,0 +1,48 @@
+Training Log
+Model: vit_base_patch16
+Model Details: vit_base_patch16_224.dino
+Dataset: imagenet1k
+Representation: ep
+Batch size per GPU: 256
+Base learning rate: 0.1
+Effective batch size: 4096
+Trainable Parameters: 1,383,400
+Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
+0, 6.4414, 4.29, 5.2590, 17.16, 37.40
+1, 4.0343, 33.65, 2.8327, 49.40, 74.60
+2, 2.3614, 54.73, 1.8178, 61.52, 83.91
+3, 1.7421, 62.81, 1.4599, 66.63, 87.43
+4, 1.4759, 66.96, 1.2793, 69.33, 89.41
+5, 1.3166, 69.78, 1.1644, 71.59, 90.68
+6, 1.2100, 71.74, 1.0956, 72.85, 91.42
+7, 1.1393, 73.04, 1.0556, 73.72, 91.89
+8, 1.0885, 74.01, 1.0282, 74.30, 92.17
+9, 1.0536, 74.66, 1.0078, 74.67, 92.41
+10, 1.0223, 75.24, 1.0011, 74.76, 92.54
+11, 1.0010, 75.69, 0.9939, 75.05, 92.54
+12, 0.9774, 76.19, 0.9842, 75.21, 92.82
+13, 0.9614, 76.53, 0.9760, 75.30, 92.83
+14, 0.9446, 76.86, 0.9781, 75.24, 92.79
+15, 0.9311, 77.14, 0.9771, 75.35, 92.86
+16, 0.9211, 77.37, 0.9764, 75.43, 92.91
+17, 0.9108, 77.54, 0.9738, 75.73, 92.92
+18, 0.9022, 77.75, 0.9739, 75.73, 92.84
+19, 0.8928, 77.94, 0.9752, 75.50, 92.87
+20, 0.8875, 78.03, 0.9795, 75.47, 92.85
+21, 0.8795, 78.19, 0.9769, 75.56, 92.92
+22, 0.8709, 78.39, 0.9831, 75.54, 92.91
+23, 0.8671, 78.50, 0.9875, 75.50, 92.80
+24, 0.8597, 78.68, 0.9886, 75.56, 92.87
+25, 0.8548, 78.74, 0.9876, 75.58, 92.90
+[early-stop] no gain > 0.05 pts for 8 epochs (best 75.73%); stopping at epoch 25 of 90
+
+Final Results:
+Max Accuracy: 75.73%
+Final Val Acc1: 75.58%
+Final Val Acc5: 92.90%
+Total Training Time: 5:13:14
+
+# Control run, not a reported number. It exists so the rule stated in the README
+# (ep vs ep_all) can be checked rather than taken on trust: the reported arm for this
+# backbone is the sibling log in this directory. Best val acc1 75.73 at epoch 17
+# of 26 recorded.

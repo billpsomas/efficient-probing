@@ -1,0 +1,30 @@
+k-NN Evaluation
+Model: Franca ViT-L/14 LAION-600M
+Representation: cls
+Protocol: features L2-normalised, cosine similarity, ImageNet-1k train as the database and val as queries
+features: 'raw' is the backbone output as the probe sees it; 'final_norm' additionally applies the encoder's final LayerNorm, which forward_features skips and which the LP head otherwise absorbs into its own learned BatchNorm
+features, T, k, Top1, Top5
+raw, 0.07, 5, 77.62, 87.80
+raw, 0.07, 10, 77.94, 90.20
+raw, 0.07, 15, 77.72, 91.09
+raw, 0.07, 20, 77.48, 91.51
+raw, 0.07, 50, 76.46, 92.39
+raw, 0.07, 100, 75.37, 92.82
+raw, 0.07, 200, 73.80, 93.20
+raw, 0.1, 5, 77.67, 87.80
+raw, 0.1, 10, 77.98, 90.20
+raw, 0.1, 15, 77.63, 91.11
+raw, 0.1, 20, 77.35, 91.55
+raw, 0.1, 50, 76.25, 92.43
+raw, 0.1, 100, 75.00, 92.82
+raw, 0.1, 200, 73.24, 93.23
+raw, 0.2, 5, 77.66, 87.80
+raw, 0.2, 10, 77.93, 90.21
+raw, 0.2, 15, 77.60, 91.13
+raw, 0.2, 20, 77.29, 91.57
+raw, 0.2, 50, 75.98, 92.44
+raw, 0.2, 100, 74.54, 92.83
+raw, 0.2, 200, 72.50, 93.29
+
+Best: Top1 77.98% with raw features at k=10, T=0.1
+Top5: 90.20%

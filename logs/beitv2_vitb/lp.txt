@@ -1,6 +1,6 @@
 Training Log
 Model: vit_base_patch16
-Model Details: /scratch/project_465003083/psomasva/checkpoints/converted_checkpoints/vit_base_patch16_224.beitv2/checkpoint-799.pth
+Model Details: <checkpoints>/vit_base_patch16_224.beitv2/checkpoint-799.pth
 Dataset: imagenet1k
 Representation: cls
 Batch size per GPU: 256
