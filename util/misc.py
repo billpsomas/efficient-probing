@@ -301,9 +301,14 @@ def get_grad_norm_(parameters, norm_type: float = 2.0) -> torch.Tensor:
     return total_norm
 
 
-def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler, test_stats, include_epoch_in_filename: bool = True):
+def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler, test_stats, include_epoch_in_filename: bool = True,
+               filename_tag: str = None):
     output_dir = Path(args.output_dir)
     epoch_name = f"{args.suffix}_{epoch}" if include_epoch_in_filename else args.suffix
+    if filename_tag is not None:
+        # a named checkpoint (e.g. "best") that is only overwritten by a better epoch,
+        # unlike the per-epoch rolling file above which always holds the LAST epoch
+        epoch_name = filename_tag
     if loss_scaler is not None:
         checkpoint_paths = [output_dir / f'checkpoint-{epoch_name}.pth']
         for checkpoint_path in checkpoint_paths:

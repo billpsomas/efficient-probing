@@ -641,14 +641,22 @@ def main(args):
         if args.output_dir:
             if args.finetuning:
                 model_without_ddp._ep_saved_module = 'full'
-                misc.save_model(
-                    args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
-                    loss_scaler=loss_scaler, epoch=epoch, test_stats=log_stats, include_epoch_in_filename=False)
+                saved = model_without_ddp
             else:
                 model_without_ddp.head._ep_saved_module = 'head'
+                saved = model_without_ddp.head
+            misc.save_model(
+                args=args, model=model, model_without_ddp=saved, optimizer=optimizer,
+                loss_scaler=loss_scaler, epoch=epoch, test_stats=log_stats, include_epoch_in_filename=False)
+            # The rolling file above is overwritten every epoch, so it ends the run
+            # holding the LAST epoch -- for encoders that peak early, a worse head
+            # than the number the table reports. Keep the PEAK separately.
+            # evaluate() all-reduces acc1, so every rank agrees on what improved.
+            if test_stats["acc1"] > max_accuracy:
                 misc.save_model(
-                    args=args, model=model, model_without_ddp=model_without_ddp.head, optimizer=optimizer,
-                    loss_scaler=loss_scaler, epoch=epoch, test_stats=log_stats, include_epoch_in_filename=False)
+                    args=args, model=model, model_without_ddp=saved, optimizer=optimizer,
+                    loss_scaler=loss_scaler, epoch=epoch, test_stats=log_stats,
+                    include_epoch_in_filename=False, filename_tag="best")
 
         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
         max_accuracy = max(max_accuracy, test_stats["acc1"])
@@ -703,7 +711,10 @@ if __name__ == '__main__':
         out_dir = Path(args.output_dir)
         if out_dir.is_dir():
             # look for files like checkpoint‑12.pth, checkpoint‑epoch12.pth, etc.
-            ckpts = sorted(out_dir.glob('checkpoint*.pth'))
+            # checkpoint-best.pth is excluded: it holds the PEAK epoch, and resuming
+            # from it would rewind a run to that epoch and replay everything after.
+            ckpts = sorted(p for p in out_dir.glob('checkpoint*.pth')
+                           if p.name != 'checkpoint-best.pth')
             if ckpts:
                 args.resume = str(ckpts[-1])          # newest by name
                 print(f'[auto‑resume] Will load {args.resume}')
