@@ -102,7 +102,12 @@ def cmd_score(argv):
     cfg_path = os.path.join(args.annotations, "class_update_config.json")
     if os.path.exists(cfg_path):
         cfg = json.load(open(cfg_path))
-        pairs = cfg.get("equivalent_classes", cfg if isinstance(cfg, list) else [])
+        # published schema: {"eq_classes": {"laptop": [620, 681], ...}}; the list
+        # form is kept for the synthetic self-test
+        if isinstance(cfg, dict) and "eq_classes" in cfg:
+            pairs = list(cfg["eq_classes"].values())
+        else:
+            pairs = cfg.get("equivalent_classes", cfg if isinstance(cfg, list) else [])
         for pair in pairs:
             if isinstance(pair, (list, tuple)) and len(pair) >= 2:
                 rep = min(int(x) for x in pair)
