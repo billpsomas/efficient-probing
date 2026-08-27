@@ -65,7 +65,7 @@ Sorted by **EP**. Ties broken by LP.
 
 | # | Family | Method | Arch. | Pre-training | Image size | k-NN | LP | EP |
 |---:|---|---|---|---|---:|---:|---:|---:|
-| 1 | Hybrid | DINOv3 | ViT-7B/16 | LVD-1689M | 224 | [84.2](logs/dinov3_vit7b/knn.txt) | [88.0](logs/dinov3_vit7b/lp.txt) | **[88.3](logs/dinov3_vit7b/ep.txt)**<sup>&dagger;</sup> |
+| 1 | Hybrid | DINOv3 | ViT-7B/16 | LVD-1689M | 224 | [84.2](logs/dinov3_vit7b/knn.txt) | [88.0](logs/dinov3_vit7b/lp.txt) | **[88.4](logs/dinov3_vit7b/ep.txt)**<sup>&dagger;</sup> |
 | 2 | VLM | MetaCLIP2 | ViT-bigG/14-378 | MetaCLIP2-worldwide (300+ langs) | 378 | [80.6](logs/metaclip2_bigg378/knn.txt) | [88.1](logs/metaclip2_bigg378/lp.txt) | [88.1](logs/metaclip2_bigg378/ep.txt) |
 | 3 | VLM | EVA02-CLIP | E-14-plus | LAION-2B (9B seen) | 224 | [82.9](logs/eva02_e14_plus/knn.txt) | [87.8](logs/eva02_e14_plus/lp.txt) | **[88.0](logs/eva02_e14_plus/ep.txt)** |
 | 4 | VLM | EVA02-CLIP | E-14 | LAION-2B (4B seen) | 224 | [82.2](logs/eva02_e14/knn.txt) | [87.4](logs/eva02_e14/lp.txt) | **[87.7](logs/eva02_e14/ep.txt)** |
@@ -75,7 +75,7 @@ Sorted by **EP**. Ties broken by LP.
 | 8 | VLM | SigLIP2 | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [76.2](logs/siglip2_vitl/knn.txt)<sup>&sect;</sup> | [85.3](logs/siglip2_vitl/lp.txt)<sup>&sect;</sup> | **[87.1](logs/siglip2_vitl/ep.txt)** |
 | 9 | Hybrid | DINOv3 | ViT-L/16 | LVD-1689M | 224 | [83.4](logs/dinov3_vitl/knn.txt) | [86.6](logs/dinov3_vitl/lp.txt) | **[87.0](logs/dinov3_vitl/ep.txt)**<sup>&dagger;</sup> |
 | 10 | GEN | AIMv2 | ViT-L/14 | DFN-2B + COYO + HQITP | 224 | [76.0](logs/aimv2_vitl/knn.txt)<sup>&Dagger;</sup> | [84.7](logs/aimv2_vitl/lp.txt)<sup>&Dagger;</sup> | **[85.9](logs/aimv2_vitl/ep.txt)** |
-| 11 | VLM | SigLIP | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [72.9](logs/siglip_vitl/knn.txt)<sup>&sect;</sup> | [84.1](logs/siglip_vitl/lp.txt)<sup>&sect;</sup> | **[85.9](logs/siglip_vitl/ep.txt)** |
+| 11 | VLM | SigLIP | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [72.9](logs/siglip_vitl/knn.txt)<sup>&sect;</sup> | [84.2](logs/siglip_vitl/lp.txt)<sup>&sect;</sup> | **[85.9](logs/siglip_vitl/ep.txt)** |
 | 12 | Hybrid | DINOv2 | ViT-L/14 | LVD-142M | 224 | [81.0](logs/dinov2_vitl/knn.txt) | [85.2](logs/dinov2_vitl/lp.txt) | **[85.6](logs/dinov2_vitl/ep.txt)**<sup>&dagger;</sup> |
 | 13 | Hybrid | Franca | ViT-L/14 | LAION-600M | 224 | [78.0](logs/franca_laion/knn.txt) | [83.6](logs/franca_laion/lp.txt) | **[84.3](logs/franca_laion/ep_all.txt)**<sup>&dagger;</sup> |
 | 14 | Hybrid | DINOv3 | ViT-B/16 | LVD-1689M | 224 | [79.6](logs/dinov3_vitb/knn.txt) | [83.9](logs/dinov3_vitb/lp.txt) | **[84.1](logs/dinov3_vitb/ep.txt)**<sup>&dagger;</sup> |
@@ -92,7 +92,7 @@ Sorted by **EP**. Ties broken by LP.
 | 25 | JEA | I-JEPA | ViT-H/14 | IN-1K | 224 | [68.1](logs/ijepa_vith/knn.txt)<sup>&Dagger;</sup> | [78.1](logs/ijepa_vith/lp.txt)<sup>&Dagger;</sup> | **[79.0](logs/ijepa_vith/ep.txt)** |
 | 26 | Hybrid | iBOT | ViT-B/16 | IN-1K | 224 | [73.6](logs/ibot_vitb/knn.txt) | [78.7](logs/ibot_vitb/lp.txt) | **[79.0](logs/ibot_vitb/ep.txt)**<sup>&dagger;</sup> |
 | 27 | MIM | Hiera | ViT-L/16 | IN-1K | 224 | [38.8](logs/hiera_large/knn.txt)<sup>&Dagger;</sup> | [74.1](logs/hiera_large/lp.txt)<sup>&Dagger;</sup> | **[78.5](logs/hiera_large/ep.txt)** |
-| 28 | VLM | CLIP | ViT-B/16 | WIT-400M | 224 | [65.7](logs/clip_vitb16/knn.txt) | [77.9](logs/clip_vitb16/lp.txt) | **[78.0](logs/clip_vitb16/ep.txt)**<sup>&dagger;</sup> |
+| 28 | VLM | CLIP | ViT-B/16 | WIT-400M | 224 | [65.7](logs/clip_vitb16/knn.txt) | **[77.9](logs/clip_vitb16/lp.txt)** | [77.8](logs/clip_vitb16/ep.txt)<sup>&dagger;</sup> |
 | 29 | JEA | DINO | ViT-B/16 | IN-1K | 224 | [71.6](logs/dino_vitb/knn.txt) | [77.2](logs/dino_vitb/lp.txt) | **[77.4](logs/dino_vitb/ep.txt)**<sup>&dagger;</sup> |
 | 30 | JEA | MoCov3 | ViT-B/16 | IN-1K | 224 | [66.8](logs/mocov3_vitb/knn.txt) | [75.7](logs/mocov3_vitb/lp.txt) | **[76.5](logs/mocov3_vitb/ep.txt)**<sup>&dagger;</sup> |
 | 31 | MIM | Hiera | ViT-B/16 | IN-1K | 224 | [39.8](logs/hiera_base/knn.txt)<sup>&Dagger;</sup> | [69.2](logs/hiera_base/lp.txt)<sup>&Dagger;</sup> | **[75.7](logs/hiera_base/ep.txt)** |
@@ -167,7 +167,7 @@ Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectur
 | JEA | I-JEPA | ViT-H/14 | IN-1K | 224 | [78.1](logs/ijepa_vith/lp.txt)<sup>&Dagger;</sup> | **[79.0](logs/ijepa_vith/ep.txt)** |
 | JEA | DINO | ViT-B/16 | IN-1K | 224 | [77.2](logs/dino_vitb/lp.txt) | **[77.4](logs/dino_vitb/ep.txt)**<sup>&dagger;</sup> |
 | JEA | MoCov3 | ViT-B/16 | IN-1K | 224 | [75.7](logs/mocov3_vitb/lp.txt) | **[76.5](logs/mocov3_vitb/ep.txt)**<sup>&dagger;</sup> |
-| Hybrid | DINOv3 | ViT-7B/16 | LVD-1689M | 224 | [88.0](logs/dinov3_vit7b/lp.txt) | **[88.3](logs/dinov3_vit7b/ep.txt)**<sup>&dagger;</sup> |
+| Hybrid | DINOv3 | ViT-7B/16 | LVD-1689M | 224 | [88.0](logs/dinov3_vit7b/lp.txt) | **[88.4](logs/dinov3_vit7b/ep.txt)**<sup>&dagger;</sup> |
 | Hybrid | DINOv3 | ViT-L/16 | LVD-1689M | 224 | [86.6](logs/dinov3_vitl/lp.txt) | **[87.0](logs/dinov3_vitl/ep.txt)**<sup>&dagger;</sup> |
 | Hybrid | DINOv2 | ViT-L/14 | LVD-142M | 224 | [85.2](logs/dinov2_vitl/lp.txt) | **[85.6](logs/dinov2_vitl/ep.txt)**<sup>&dagger;</sup> |
 | Hybrid | Franca | ViT-L/14 | LAION-600M | 224 | [83.6](logs/franca_laion/lp.txt) | **[84.3](logs/franca_laion/ep_all.txt)**<sup>&dagger;</sup> |
@@ -182,11 +182,11 @@ Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectur
 | VLM | EVA02-CLIP | E-14 | LAION-2B (4B seen) | 224 | [87.4](logs/eva02_e14/lp.txt) | **[87.7](logs/eva02_e14/ep.txt)** |
 | VLM | SigLIP2 | SO400M/14 | WebLI (10B imgs, 109 langs) | 224 | [86.3](logs/siglip2_so400m/lp.txt)<sup>&sect;</sup> | **[87.7](logs/siglip2_so400m/ep.txt)** |
 | VLM | PE-Core | L-14/336 | MetaCLIP-curated 5.4B | 336 | [85.4](logs/pe_core_l336/lp.txt)<sup>&sect;</sup> | **[87.2](logs/pe_core_l336/ep.txt)** |
-| VLM | SigLIP2 | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [85.3](logs/siglip2_vitl/lp.txt)<sup>&sect;</sup> | **[87.1](logs/siglip2_vitl/ep.txt)** |
 | VLM | MetaCLIP2 | ViT-bigG/14 | MetaCLIP2-worldwide (300+ langs) | 224 | [87.1](logs/metaclip2_bigg/lp.txt) | [87.1](logs/metaclip2_bigg/ep.txt) |
-| VLM | SigLIP | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [84.1](logs/siglip_vitl/lp.txt)<sup>&sect;</sup> | **[85.9](logs/siglip_vitl/ep.txt)** |
+| VLM | SigLIP2 | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [85.3](logs/siglip2_vitl/lp.txt)<sup>&sect;</sup> | **[87.1](logs/siglip2_vitl/ep.txt)** |
+| VLM | SigLIP | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [84.2](logs/siglip_vitl/lp.txt)<sup>&sect;</sup> | **[85.9](logs/siglip_vitl/ep.txt)** |
 | VLM | CLIP | ViT-L/14 | WIT-400M | 224 | [82.5](logs/clip_vitl/lp.txt) | **[83.2](logs/clip_vitl/ep.txt)** |
-| VLM | CLIP | ViT-B/16 | WIT-400M | 224 | [77.9](logs/clip_vitb16/lp.txt) | **[78.0](logs/clip_vitb16/ep.txt)**<sup>&dagger;</sup> |
+| VLM | CLIP | ViT-B/16 | WIT-400M | 224 | **[77.9](logs/clip_vitb16/lp.txt)** | [77.8](logs/clip_vitb16/ep.txt)<sup>&dagger;</sup> |
 | GEN | AIMv2 | ViT-L/14 | DFN-2B + COYO + HQITP | 224 | [84.7](logs/aimv2_vitl/lp.txt)<sup>&Dagger;</sup> | **[85.9](logs/aimv2_vitl/ep.txt)** |
 | GEN | DiT | DiT-XL/2 | IN-1K | 256 | [32.7](logs/dit_xl/lp.txt)<sup>&Dagger;</sup> | **[57.0](logs/dit_xl/ep.txt)** |
 
@@ -203,7 +203,7 @@ Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectur
 | Base | MIM | BEiTv2 | ViT-B/16 | 224 | [79.0](logs/beitv2_vitb/lp.txt) | **[81.4](logs/beitv2_vitb/ep.txt)** |
 | Base | Hybrid | RADIO | ViT-B/16 | 224 | [79.7](logs/radio_v25_b/lp.txt) | **[80.3](logs/radio_v25_b/ep.txt)** |
 | Base | Hybrid | iBOT | ViT-B/16 | 224 | [78.7](logs/ibot_vitb/lp.txt) | **[79.0](logs/ibot_vitb/ep.txt)**<sup>&dagger;</sup> |
-| Base | VLM | CLIP | ViT-B/16 | 224 | [77.9](logs/clip_vitb16/lp.txt) | **[78.0](logs/clip_vitb16/ep.txt)**<sup>&dagger;</sup> |
+| Base | VLM | CLIP | ViT-B/16 | 224 | **[77.9](logs/clip_vitb16/lp.txt)** | [77.8](logs/clip_vitb16/ep.txt)<sup>&dagger;</sup> |
 | Base | JEA | DINO | ViT-B/16 | 224 | [77.2](logs/dino_vitb/lp.txt) | **[77.4](logs/dino_vitb/ep.txt)**<sup>&dagger;</sup> |
 | Base | JEA | MoCov3 | ViT-B/16 | 224 | [75.7](logs/mocov3_vitb/lp.txt) | **[76.5](logs/mocov3_vitb/ep.txt)**<sup>&dagger;</sup> |
 | Base | MIM | Hiera | ViT-B/16 | 224 | [69.2](logs/hiera_base/lp.txt)<sup>&Dagger;</sup> | **[75.7](logs/hiera_base/ep.txt)** |
@@ -214,7 +214,7 @@ Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectur
 | Large | VLM | SigLIP2 | ViT-L/16 | 256 | [85.3](logs/siglip2_vitl/lp.txt)<sup>&sect;</sup> | **[87.1](logs/siglip2_vitl/ep.txt)** |
 | Large | Hybrid | DINOv3 | ViT-L/16 | 224 | [86.6](logs/dinov3_vitl/lp.txt) | **[87.0](logs/dinov3_vitl/ep.txt)**<sup>&dagger;</sup> |
 | Large | GEN | AIMv2 | ViT-L/14 | 224 | [84.7](logs/aimv2_vitl/lp.txt)<sup>&Dagger;</sup> | **[85.9](logs/aimv2_vitl/ep.txt)** |
-| Large | VLM | SigLIP | ViT-L/16 | 256 | [84.1](logs/siglip_vitl/lp.txt)<sup>&sect;</sup> | **[85.9](logs/siglip_vitl/ep.txt)** |
+| Large | VLM | SigLIP | ViT-L/16 | 256 | [84.2](logs/siglip_vitl/lp.txt)<sup>&sect;</sup> | **[85.9](logs/siglip_vitl/ep.txt)** |
 | Large | Hybrid | DINOv2 | ViT-L/14 | 224 | [85.2](logs/dinov2_vitl/lp.txt) | **[85.6](logs/dinov2_vitl/ep.txt)**<sup>&dagger;</sup> |
 | Large | Hybrid | Franca | ViT-L/14 | 224 | [83.6](logs/franca_laion/lp.txt) | **[84.3](logs/franca_laion/ep_all.txt)**<sup>&dagger;</sup> |
 | Large | Hybrid | RADIO | ViT-L/16 | 224 | **[84.4](logs/radio_v25_l/lp.txt)** | [83.9](logs/radio_v25_l/ep.txt) |
@@ -227,7 +227,7 @@ Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectur
 | Large | MIM | MaskFeat | ViT-L/16 | 224 | [40.9](logs/maskfeat_large/lp.txt) | **[69.6](logs/maskfeat_large/ep.txt)** |
 | Giant | MIM | Hiera | ViT-H/16 | 224 | [77.3](logs/hiera_huge/lp.txt)<sup>&Dagger;</sup> | **[79.9](logs/hiera_huge/ep.txt)** |
 | Giant | JEA | I-JEPA | ViT-H/14 | 224 | [78.1](logs/ijepa_vith/lp.txt)<sup>&Dagger;</sup> | **[79.0](logs/ijepa_vith/ep.txt)** |
-| Other | Hybrid | DINOv3 | ViT-7B/16 | 224 | [88.0](logs/dinov3_vit7b/lp.txt) | **[88.3](logs/dinov3_vit7b/ep.txt)**<sup>&dagger;</sup> |
+| Other | Hybrid | DINOv3 | ViT-7B/16 | 224 | [88.0](logs/dinov3_vit7b/lp.txt) | **[88.4](logs/dinov3_vit7b/ep.txt)**<sup>&dagger;</sup> |
 | Other | VLM | MetaCLIP2 | ViT-bigG/14-378 | 378 | [88.1](logs/metaclip2_bigg378/lp.txt) | [88.1](logs/metaclip2_bigg378/ep.txt) |
 | Other | VLM | EVA02-CLIP | E-14-plus | 224 | [87.8](logs/eva02_e14_plus/lp.txt) | **[88.0](logs/eva02_e14_plus/ep.txt)** |
 | Other | VLM | EVA02-CLIP | E-14 | 224 | [87.4](logs/eva02_e14/lp.txt) | **[87.7](logs/eva02_e14/ep.txt)** |
@@ -240,7 +240,7 @@ Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectur
 <details>
 <summary><b>Commands</b> — exact settings behind each row</summary>
 
-**DINOv3 ViT-7B/16** — k-NN 84.2, LP 88.0, EP 88.3
+**DINOv3 ViT-7B/16** — k-NN 84.2, LP 88.0, EP 88.4
 
 ```bash
 # k-NN  (best was k=200, T=0.1)
@@ -402,33 +402,6 @@ torchrun --nproc_per_node=8 main_linprobe.py \
     --cls_features ep --ep_queries 32
 ```
 
-**SigLIP2 ViT-L/16** — k-NN 76.2, LP 85.3, EP 87.1
-
-```bash
-# k-NN  (best was k=15, T=0.07)
-torchrun --nproc_per_node=8 main_linprobe.py --knn_eval \
-    --T_sweep 0.07,0.1,0.2 --amp bfloat16 \
-    --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet \
-    --model ViT-L-16-SigLIP2-256 --openclip --openclip_pretrain webli --input_size 256 \
-    --cls_features pos
-
-# LP
-torchrun --nproc_per_node=8 main_linprobe.py \
-    --epochs 90 --optimizer lars --blr 0.1 --batch_size 512 --accum_iter 1 \
-    --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet \
-    --d_out 1 --amp bfloat16 \
-    --model ViT-L-16-SigLIP2-256 --openclip --openclip_pretrain webli --input_size 256 \
-    --cls_features pos
-
-# EP
-torchrun --nproc_per_node=8 main_linprobe.py \
-    --epochs 90 --optimizer lars --blr 0.1 --batch_size 512 --accum_iter 1 \
-    --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet \
-    --d_out 1 --amp bfloat16 \
-    --model ViT-L-16-SigLIP2-256 --openclip --openclip_pretrain webli --input_size 256 \
-    --cls_features ep --ep_queries 32
-```
-
 **MetaCLIP2 ViT-bigG/14** — k-NN 79.6, LP 87.1, EP 87.1
 
 ```bash
@@ -453,6 +426,33 @@ torchrun --nproc_per_node=8 main_linprobe.py \
     --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet \
     --d_out 1 --amp bfloat16 \
     --model ViT-bigG-14-worldwide --openclip --openclip_pretrain metaclip2_worldwide \
+    --cls_features ep --ep_queries 32
+```
+
+**SigLIP2 ViT-L/16** — k-NN 76.2, LP 85.3, EP 87.1
+
+```bash
+# k-NN  (best was k=15, T=0.07)
+torchrun --nproc_per_node=8 main_linprobe.py --knn_eval \
+    --T_sweep 0.07,0.1,0.2 --amp bfloat16 \
+    --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet \
+    --model ViT-L-16-SigLIP2-256 --openclip --openclip_pretrain webli --input_size 256 \
+    --cls_features pos
+
+# LP
+torchrun --nproc_per_node=8 main_linprobe.py \
+    --epochs 90 --optimizer lars --blr 0.1 --batch_size 512 --accum_iter 1 \
+    --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet \
+    --d_out 1 --amp bfloat16 \
+    --model ViT-L-16-SigLIP2-256 --openclip --openclip_pretrain webli --input_size 256 \
+    --cls_features pos
+
+# EP
+torchrun --nproc_per_node=8 main_linprobe.py \
+    --epochs 90 --optimizer lars --blr 0.1 --batch_size 512 --accum_iter 1 \
+    --dataset_name imagenet1k --nb_classes 1000 --data_path /path/to/imagenet \
+    --d_out 1 --amp bfloat16 \
+    --model ViT-L-16-SigLIP2-256 --openclip --openclip_pretrain webli --input_size 256 \
     --cls_features ep --ep_queries 32
 ```
 
@@ -510,7 +510,7 @@ torchrun --nproc_per_node=8 main_linprobe.py \
     --cls_features ep --ep_queries 32
 ```
 
-**SigLIP ViT-L/16** — k-NN 72.9, LP 84.1, EP 85.9
+**SigLIP ViT-L/16** — k-NN 72.9, LP 84.2, EP 85.9
 
 ```bash
 # k-NN  (best was k=15, T=0.07)
@@ -969,7 +969,7 @@ torchrun --nproc_per_node=8 main_linprobe.py \
     --cls_features ep --ep_queries 32
 ```
 
-**CLIP ViT-B/16** — k-NN 65.7, LP 77.9, EP 78.0
+**CLIP ViT-B/16** — k-NN 65.7, LP 77.9, EP 77.8
 
 ```bash
 # k-NN  (best was k=15, T=0.1)
@@ -1243,24 +1243,25 @@ torchrun --nproc_per_node=8 main_linprobe.py \
 </details>
 
 <details>
-<summary><b>Provenance</b> — more detail on 30 rows</summary>
+<summary><b>Provenance</b> — more detail on 31 rows</summary>
 
 Unless noted here, a row is our own run: 90 epochs, no early stopping, both arms, at the settings in its command block.
 
-- `DINOv3 ViT-7B/16` — ep_all at Q=32 (plain ep 88.05). Short arms: LP early-stopped at 17 epochs, EP stopped at 18 on the 48h wall; both peak at ep6-8 then decline, and the early-stopping rule was independently met at epoch 14 on the EP arm. At ~2.4 h/epoch a full 90 would be ~9 node-days per arm.
-- `MetaCLIP2 ViT-bigG/14-378` — Same checkpoint as the 224 row at 378px. Both arms manually stopped and reported at their epoch-6 peak: LP after 20 epochs, EP after 10, at ~4.5 h/epoch against ~17 node-days per arm for a full schedule. Every VLM here peaks at epoch 6-12, and the 224 run of this checkpoint peaks at ep6 across 49 LP and 30 EP epochs. EP is plain ep; ep_all 88.08. Data (Meta CLIP 2, arXiv:2507.22062): worldwide alt-text, metadata for 300+ languages, ~44%% English, ~29B pairs seen. The paper's largest model is ViT-H/14; these bigG weights are a later open_clip release (timm/vit_gigantic_patch14_clip_224.metaclip2_worldwide).
-- `EVA02-CLIP E-14-plus` — Larger-batch variant of E-14 (laion2b_s9b_b144k). Both arms reported at their epoch-6 peak; logs trimmed at epoch 14, untrimmed runs under outputs/. LP ran to epoch 25 with no gain.
-- `EVA02-CLIP E-14` — Both arms reported at their epoch-6 peak; logs trimmed at epoch 14 where the early-stopping rule is met, untrimmed runs under outputs/. LP ran to epoch 58 and EP to 28 with no gain. EP wins by 0.26, the thinnest margin at the top of the table.
+- `DINOv3 ViT-7B/16` — ep_all at Q=32 (plain ep 88.05). Short arms: LP early-stopped at 17 epochs, EP stopped at 18 on the 48h wall; both peak at ep6-8 then decline, and the early-stopping rule was independently met at epoch 14 on the EP arm. At ~2.4 h/epoch a full 90 would be ~9 node-days per arm. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
+- `MetaCLIP2 ViT-bigG/14-378` — Same checkpoint as the 224 row at 378px. Both arms manually stopped and reported at their epoch-6 peak: LP after 20 epochs, EP after 10, at ~4.5 h/epoch against ~17 node-days per arm for a full schedule. Every VLM here peaks at epoch 6-12, and the 224 run of this checkpoint peaks at ep6 across 49 LP and 30 EP epochs. EP is plain ep; ep_all 88.08. Data (Meta CLIP 2, arXiv:2507.22062): worldwide alt-text, metadata for 300+ languages, ~44%% English, ~29B pairs seen. The paper's largest model is ViT-H/14; these bigG weights are a later open_clip release (timm/vit_gigantic_patch14_clip_224.metaclip2_worldwide). Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
+- `EVA02-CLIP E-14-plus` — Larger-batch variant of E-14 (laion2b_s9b_b144k). Both arms reported at their epoch-6 peak; logs trimmed at epoch 14, untrimmed runs under outputs/. LP ran to epoch 25 with no gain. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
+- `EVA02-CLIP E-14` — Both arms reported at their epoch-6 peak; logs trimmed at epoch 14 where the early-stopping rule is met, untrimmed runs under outputs/. LP ran to epoch 58 and EP to 28 with no gain. EP wins by 0.26, the thinnest margin at the top of the table. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
 - `SigLIP2 SO400M/14` — Early-stopped: LP 17 epochs, EP 30. ep_all scored 87.66, below the reported ep.
-- `PE-Core L-14/336` — LP is GAP: PE-Core pools with its own learned attention head, which scores 87.76 -- above EP -- and is excluded on principle. EP is plain ep; ep_all 87.24. Pre-training (Perception Encoder, arXiv:2504.13181): 5.4B public image alt-text pairs curated with the MetaCLIP text-only pipeline, 58B samples seen at B/L scale. The released L/14-336 is the checkpoint after image+video finetuning, not the image-only model.
-- `SigLIP2 ViT-L/16` — LP peaks ep10 and falls 1.7 points by ep89; EP peaks ep6 and falls 2.1.
-- `MetaCLIP2 ViT-bigG/14` — EP is plain ep; ep_all peaked at 86.95 over 47 epochs, below it. LP is cls (GAP 86.94), 49 epochs, peak ep6. LP reads open_clip's projected 1280-d embedding while EP pools the unprojected 1664-d patch tokens. Data (Meta CLIP 2, arXiv:2507.22062): worldwide alt-text, metadata for 300+ languages, ~44%% English, ~29B pairs seen. The paper's largest model is ViT-H/14; these bigG weights are a later open_clip release (timm/vit_gigantic_patch14_clip_224.metaclip2_worldwide).
+- `PE-Core L-14/336` — LP is GAP: PE-Core pools with its own learned attention head, which scores 87.76 -- above EP -- and is excluded on principle. EP is plain ep; ep_all 87.24. Pre-training (Perception Encoder, arXiv:2504.13181): 5.4B public image alt-text pairs curated with the MetaCLIP text-only pipeline, 58B samples seen at B/L scale. The released L/14-336 is the checkpoint after image+video finetuning, not the image-only model. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
+- `MetaCLIP2 ViT-bigG/14` — EP is plain ep; ep_all peaked at 86.95 over 47 epochs, below it. LP is cls (GAP 86.94), 49 epochs, peak ep6. LP reads open_clip's projected 1280-d embedding while EP pools the unprojected 1664-d patch tokens. Data (Meta CLIP 2, arXiv:2507.22062): worldwide alt-text, metadata for 300+ languages, ~44%% English, ~29B pairs seen. The paper's largest model is ViT-H/14; these bigG weights are a later open_clip release (timm/vit_gigantic_patch14_clip_224.metaclip2_worldwide). Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
+- `SigLIP2 ViT-L/16` — LP peaks ep10 and falls 1.7 points by ep89; EP peaks ep6 and falls 2.1. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
 - `AIMv2 ViT-L/14` — Pre-training (AIMv2 paper Table 2, arXiv:2411.14402): DFN-2B 1.90B alt-text + 3.80B synthetic-caption pairs (30% sampling each), COYO 560M (9%), HQITP 565M alt-text + 432M synthetic (28% / 3%); 12B samples seen. HQITP is Apple-internal, so the mixture is not reproducible from public data.
-- `SigLIP ViT-L/16` — LP peaks ep8, EP ep6; both decline over the remaining 80+ epochs.
-- `DINOv2 ViT-L/14` — ep_all: DINOv2 self-distills on the [CLS]. Q=32; an earlier Q=64 run scored 85.55.
-- `Franca ViT-L/14` — Run WITHOUT --use_rasa_head: upstream builds RASAHead(n_pos_layers=9) while both published RASA checkpoints carry only 8 pre_pos_layers, so the flag cannot load against valeoai/Franca v1.0.0. The backbone franca_vitl14_Laion600M.pth loads cleanly and is what is probed. EP is ep_all (84.28) over plain ep (83.92). LP peaks ep82, EP ep14. Replaces the IN-21k row: release v1.0.0 never uploaded franca_vitl14_In21K.pth.
+- `SigLIP ViT-L/16` — LP peaks ep8, EP ep6; both decline over the remaining 80+ epochs. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
+- `DINOv2 ViT-L/14` — ep_all: DINOv2 self-distills on the [CLS]. Q=32; an earlier Q=64 run scored 85.55. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
+- `Franca ViT-L/14` — Run WITHOUT --use_rasa_head: upstream builds RASAHead(n_pos_layers=9) while both published RASA checkpoints carry only 8 pre_pos_layers, so the flag cannot load against valeoai/Franca v1.0.0. The backbone franca_vitl14_Laion600M.pth loads cleanly and is what is probed. EP is ep_all (84.28) over plain ep (83.92). LP peaks ep82, EP ep14. Replaces the IN-21k row: release v1.0.0 never uploaded franca_vitl14_In21K.pth. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
 - `RADIO ViT-L/16` — Multi-teacher distillation. Teachers read from the checkpoint's own args: clip = ViT-H-14-378-quickgelu (dfn5b), siglip = ViT-SO400M-14-SigLIP-384 (webli), dino_v2 = dinov2_vitg14_reg, sam = vit-h. cls_token_per_teacher=True with SAM use_summary=False, so the summary is 3xC: LP reads 3072-d while EP pools 1024-d patch tokens. Three of the four teachers optimise a global representation, so LP is strong here. The checkpoint records no training corpus; the RADIOv2.5 paper (arXiv:2412.07679) gives DataComp-1B.
 - `EVA02 ViT-L/14` — LP peaks ep84, EP ep15. ep_all also scores 83.58 -- this MIM [CLS] holds nothing the patch tokens do not, so plain ep is reported.
+- `CLIP ViT-L/14` — . Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
 - `CAPI ViT-L/14` — Requires --amp float32: CAPI fails under bfloat16 with an index_add_ dtype mismatch.
 - `BEiTv2 ViT-B/16` — Loads through the SimMIM architecture. Checkpoint converted by the [Beyond [cls]](https://github.com/gmum/beyond_cls) authors; not redistributable.
 - `RADIO ViT-B/16` — Multi-teacher distillation. Teachers read from the checkpoint's own args: clip = ViT-H-14-378-quickgelu (dfn5b), siglip = ViT-SO400M-14-SigLIP-384 (webli), dino_v2 = dinov2_vitg14_reg, sam = vit-h. cls_token_per_teacher=True with SAM use_summary=False, so the summary is 3xC: LP reads 2304-d while EP pools 768-d patch tokens. Three of the four teachers optimise a global representation, so LP is strong here. The checkpoint records no training corpus; the RADIOv2.5 paper (arXiv:2412.07679) gives DataComp-1B.
@@ -1269,7 +1270,7 @@ Unless noted here, a row is our own run: 90 epochs, no early stopping, both arms
 - `MAE ViT-L/16` — LP peaks ep84, EP ep86 -- this MIM encoder uses the whole schedule. GAP scores 73.58, below cls.
 - `I-JEPA ViT-H/14` — Built with --no_cls_token: I-JEPA has no [CLS] at all, so GAP is the only linear probe available. Checkpoint converted by the [Beyond [cls]](https://github.com/gmum/beyond_cls) authors; not redistributable.
 - `iBOT ViT-B/16` — ep_all: iBOT self-distills on the [CLS]; plain ep scores 78.41, below LP. Checkpoint converted by the [Beyond [cls]](https://github.com/gmum/beyond_cls) authors; not redistributable.
-- `CLIP ViT-B/16` — ep_all: CLIP trains contrastively on the projected [CLS] and runs in that 512-d space, where plain ep on raw 768-d patch tokens is a different space. LP is cls (77.86); GAP scores 75.17.
+- `CLIP ViT-B/16` — ep_all: CLIP trains contrastively on the projected [CLS] and runs in that 512-d space, where plain ep on raw 768-d patch tokens is a different space. LP is cls (77.86); GAP scores 75.17. Both arms re-run to their peak with best-epoch checkpointing under identical flags and schedule; the published logs and the HF-uploaded heads are from the recapture, whose peak matched the original to within 0.10 (most arms exactly). Original logs kept as *_prev.txt.
 - `DINO ViT-B/16` — ep_all: DINO self-distills on the [CLS]; plain ep discards it and scores 75.73, 1.46 below LP.
 - `MoCov3 ViT-B/16` — ep_all: MoCov3 is contrastive on the [CLS]; plain ep 75.90, ep_all 76.53. Checkpoint converted by the [Beyond [cls]](https://github.com/gmum/beyond_cls) authors; not redistributable.
 - `MaskFeat ViT-B/16` — The released checkpoint carries NaN in norm.weight/norm.bias; models_vit never applies that final LayerNorm, so nothing here touches it. GAP scores 56.94, below cls. Checkpoint converted by the [Beyond [cls]](https://github.com/gmum/beyond_cls) authors; not redistributable.

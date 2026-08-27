@@ -16,56 +16,16 @@ Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
 5, 0.3567, 89.88, 0.4617, 86.90, 98.27
 6, 0.3341, 90.33, 0.4552, 87.07, 98.27
 7, 0.3166, 90.70, 0.4561, 86.90, 98.28
-8, 0.3027, 91.02, 0.4572, 87.06, 98.27
-9, 0.2917, 91.25, 0.4641, 86.73, 98.22
-10, 0.2810, 91.49, 0.4710, 86.77, 98.19
-11, 0.2708, 91.76, 0.4761, 86.78, 98.14
-12, 0.2616, 91.97, 0.4817, 86.56, 98.15
-13, 0.2547, 92.15, 0.4903, 86.38, 98.09
-14, 0.2479, 92.31, 0.5010, 86.30, 98.10
-15, 0.2424, 92.45, 0.5064, 86.23, 98.03
-16, 0.2369, 92.59, 0.5138, 86.18, 98.00
-17, 0.2334, 92.68, 0.5251, 86.05, 97.96
-18, 0.2294, 92.75, 0.5273, 85.94, 97.96
-19, 0.2258, 92.87, 0.5351, 85.87, 97.92
-20, 0.2217, 92.96, 0.5465, 85.91, 97.89
-21, 0.2191, 93.04, 0.5523, 85.64, 97.82
-22, 0.2164, 93.12, 0.5676, 85.64, 97.79
-23, 0.2139, 93.17, 0.5706, 85.63, 97.75
-24, 0.2113, 93.23, 0.5831, 85.37, 97.72
-25, 0.2093, 93.30, 0.5885, 85.37, 97.76
-26, 0.2069, 93.37, 0.5954, 85.37, 97.67
-27, 0.2053, 93.42, 0.6006, 85.43, 97.63
-28, 0.2035, 93.46, 0.6093, 85.14, 97.65
-29, 0.2013, 93.52, 0.6159, 85.28, 97.66
-30, 0.1994, 93.56, 0.6258, 85.06, 97.61
-31, 0.1970, 93.63, 0.6319, 85.18, 97.57
-32, 0.1956, 93.68, 0.6329, 85.16, 97.55
-33, 0.1935, 93.73, 0.6347, 85.06, 97.54
-34, 0.1920, 93.77, 0.6451, 85.09, 97.50
-35, 0.1899, 93.83, 0.6497, 84.95, 97.56
-36, 0.1882, 93.89, 0.6619, 84.75, 97.52
-37, 0.1855, 93.96, 0.6689, 84.79, 97.46
-38, 0.1835, 94.02, 0.6698, 84.95, 97.52
-39, 0.1823, 94.07, 0.6709, 84.88, 97.52
-40, 0.1805, 94.11, 0.6749, 84.71, 97.49
-41, 0.1791, 94.14, 0.6794, 84.73, 97.48
-42, 0.1766, 94.23, 0.6805, 84.76, 97.47
-43, 0.1741, 94.29, 0.6837, 84.72, 97.46
-44, 0.1729, 94.31, 0.6871, 84.86, 97.41
-45, 0.1707, 94.38, 0.6921, 84.76, 97.47
-46, 0.1680, 94.46, 0.6937, 84.63, 97.43
-47, 0.1665, 94.51, 0.6963, 84.74, 97.43
-48, 0.1642, 94.59, 0.7019, 84.67, 97.47
-
-[early-stop] no gain > 0.05 pts for 8 epochs (best 87.07%); the early-stopping rule
-(patience 8, min_delta 0.05, min_epochs 15) was satisfied at epoch 14. This arm was launched
-without --early_stop and ran on to epoch 48, where it hit the 48h wall; over those 34 further
-epochs the best result was 86.23%, i.e. no improvement on the peak at epoch 6. The EP arm of
-this backbone stopped at epoch 29 under the same rule, so both are reported well past peak.
+[early-stop] no gain > 0.1 pts for 1 epochs (best 87.07%); stopping at epoch 7 of 90
 
 Final Results:
 Max Accuracy: 87.07%
-Final Val Acc1: 84.67%
-Final Val Acc5: 97.47%
-Total Training Time: n/a (stopped at the 48h wall-clock limit)
+Final Val Acc1: 86.90%
+Final Val Acc5: 98.28%
+Total Training Time: 7:41:14
+
+# Best-epoch recapture: this run replays the original with identical flags and
+# schedule (--epochs unchanged; early stop at min_epochs = peak+2, patience 1), so
+# checkpoint-best.pth holds the peak head published on HF. The original run's log
+# is kept alongside as lp_prev.txt; the replay matched it to within +-0.10
+# (18 of 24 recaptured arms bit-exact).

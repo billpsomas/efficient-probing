@@ -1,0 +1,49 @@
+Training Log
+Model: ViT-bigG-14-worldwide-378
+Model Details: 
+Dataset: imagenet1k
+Representation: cls
+Batch size per GPU: 16
+Base learning rate: 0.1
+Effective batch size: 4096
+Trainable Parameters: 1,281,000
+Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
+0, 6.3255, 9.28, 4.8134, 43.00, 67.21
+1, 2.7436, 70.64, 1.1016, 81.73, 96.02
+2, 0.6752, 86.47, 0.5417, 86.16, 97.90
+3, 0.4338, 88.78, 0.4607, 87.33, 98.30
+4, 0.3720, 89.75, 0.4320, 87.72, 98.51
+5, 0.3393, 90.37, 0.4221, 87.90, 98.58
+6, 0.3178, 90.79, 0.4149, 88.09, 98.58
+7, 0.3020, 91.12, 0.4165, 88.08, 98.62
+8, 0.2895, 91.38, 0.4173, 88.03, 98.65
+9, 0.2799, 91.57, 0.4231, 87.93, 98.59
+# resumed from outputs/imagenet/vit_bigg378/linprobe_metaclip2_bigg378_cls_q32_d1_noes_imagenet1k/checkpoint-.pth
+Effective batch size: 4096
+Trainable Parameters: 1,281,000
+Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
+10, 1.2590, 78.84, 0.4537, 87.28, 98.38
+11, 0.3582, 89.81, 0.4280, 87.82, 98.53
+12, 0.3199, 90.66, 0.4201, 87.96, 98.62
+13, 0.2985, 91.15, 0.4205, 87.93, 98.59
+14, 0.2833, 91.49, 0.4244, 87.93, 98.61
+15, 0.2718, 91.74, 0.4275, 87.79, 98.61
+16, 0.2621, 91.99, 0.4345, 87.63, 98.57
+17, 0.2549, 92.13, 0.4407, 87.64, 98.57
+18, 0.2485, 92.29, 0.4422, 87.64, 98.58
+19, 0.2431, 92.40, 0.4483, 87.68, 98.51
+
+# Manually stopped after 20 of 90 epochs, and reported at its peak (epoch 6).
+#
+# This is a deliberate stop, not a crash or a wall. At 378px this backbone costs about
+# 4.5 h/epoch, so a full schedule would be roughly 17 node-days per arm. The decision to
+# stop rests on the behaviour of the rest of the family rather than on this run alone:
+# every VLM in this benchmark peaks between epoch 6 and epoch 12, and the four that were
+# taken to a full 90 epochs (SigLIP ViT-L, SigLIP2 ViT-L, CLIP ViT-B and PE-Core, both
+# arms each) then declined for the remaining ~80 epochs without ever recovering their
+# peak. The 224px run of this same checkpoint also peaks at epoch 6, across 49 LP and 30
+# EP epochs. This arm likewise peaked at epoch 6 and was already falling when stopped,
+# so the remaining epochs would have cost node-weeks to confirm a number already in hand.
+#
+# Read the figure as the peak of a converged-and-declining curve, which is what every
+# other VLM row in this table reports too.

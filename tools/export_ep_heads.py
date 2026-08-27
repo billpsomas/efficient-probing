@@ -94,10 +94,15 @@ def main():
                                         "reason": MISSING[key]})
             print("SKIP  %-30s %s" % (" ".join(key), MISSING[key][:60]))
             continue
-        run = find_run(r, dirs)
-        # runs trained after the save-best change carry the peak separately; use it
-        cks = glob.glob(run + "/checkpoint-best.pth") or \
-              glob.glob(run + "/checkpoint*.pth")
+        # a best-epoch recapture supersedes the original run's last-epoch file
+        recap = "outputs/imagenet/rerun_best/%s_ep/checkpoint-best.pth" % slug
+        if os.path.exists(recap):
+            cks = [recap]
+        else:
+            run = find_run(r, dirs)
+            # runs trained after the save-best change carry the peak separately; use it
+            cks = glob.glob(run + "/checkpoint-best.pth") or \
+                  glob.glob(run + "/checkpoint*.pth")
         assert len(cks) == 1, (key, cks)
         is_peak = cks[0].endswith("checkpoint-best.pth")
         ck = torch.load(cks[0], map_location="cpu", weights_only=False)

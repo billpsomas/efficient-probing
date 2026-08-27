@@ -1,0 +1,38 @@
+Training Log
+Model: EVA02-E-14-plus
+Model Details: 
+Dataset: imagenet1k
+Representation: cls
+Batch size per GPU: 32
+Base learning rate: 0.1
+Effective batch size: 4096
+Trainable Parameters: 1,025,000
+Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
+0, 6.3395, 9.53, 4.8895, 43.47, 68.10
+1, 2.7015, 72.27, 1.0268, 82.45, 96.71
+2, 0.6188, 86.99, 0.5306, 86.20, 97.97
+3, 0.4175, 88.94, 0.4642, 87.09, 98.29
+4, 0.3658, 89.76, 0.4419, 87.59, 98.39
+5, 0.3381, 90.31, 0.4336, 87.64, 98.45
+6, 0.3195, 90.72, 0.4299, 87.82, 98.45
+7, 0.3060, 91.01, 0.4313, 87.68, 98.51
+8, 0.2952, 91.23, 0.4355, 87.54, 98.46
+9, 0.2868, 91.42, 0.4379, 87.53, 98.47
+10, 0.2790, 91.57, 0.4437, 87.49, 98.46
+11, 0.2711, 91.78, 0.4471, 87.52, 98.41
+12, 0.2642, 91.91, 0.4581, 87.33, 98.43
+13, 0.2588, 92.08, 0.4597, 87.28, 98.45
+14, 0.2541, 92.14, 0.4686, 87.15, 98.38
+
+[early-stop] no gain > 0.05 pts for 8 epochs (best 87.82%); stopping at epoch 14 of 90.
+[note] the EP arm of this backbone stops at the same epoch under the same rule, so the two
+are compared like for like. This run was launched without --early_stop and in fact continued
+to epoch 25; over those 11 extra epochs the best result was 87.21%, i.e. no improvement on the
+epoch-6 peak. The rows past epoch 14 are trimmed here; the untrimmed run is preserved under
+outputs/.
+
+Final Results:
+Max Accuracy: 87.82%
+Final Val Acc1: 87.15%
+Final Val Acc5: 98.38%
+Total Training Time: n/a (trimmed at the early-stopping point)

@@ -18,16 +18,17 @@ Epoch, Train Loss, Train Acc1, Val Loss, Val Acc1, Val Acc5
 7, 0.3661, 90.17, 0.4555, 87.71, 98.29
 8, 0.3421, 90.64, 0.4511, 87.95, 98.31
 9, 0.3199, 91.04, 0.4589, 87.70, 98.31
-[early-stop] no gain > 0.1 pts for 1 epochs (best 87.95%); stopping at epoch 9 of 90
+10, 0.3011, 91.44, 0.4627, 87.66, 98.29
+11, 0.2853, 91.81, 0.4674, 87.67, 98.28
+12, 0.2698, 92.17, 0.4750, 87.47, 98.22
+13, 0.2591, 92.43, 0.4817, 87.60, 98.22
+14, 0.2491, 92.69, 0.4879, 87.32, 98.18
+15, 0.2423, 92.85, 0.4918, 87.36, 98.18
+16, 0.2350, 93.03, 0.5062, 87.40, 98.13
+[early-stop] no gain > 0.05 pts for 8 epochs (best 87.95%); stopping at epoch 16 of 90
 
 Final Results:
 Max Accuracy: 87.95%
-Final Val Acc1: 87.70%
-Final Val Acc5: 98.31%
-Total Training Time: 23:27:55
-
-# Best-epoch recapture: this run replays the original with identical flags and
-# schedule (--epochs unchanged; early stop at min_epochs = peak+2, patience 1), so
-# checkpoint-best.pth holds the peak head published on HF. The original run's log
-# is kept alongside as lp_prev.txt; the replay matched it to within +-0.10
-# (18 of 24 recaptured arms bit-exact).
+Final Val Acc1: 87.40%
+Final Val Acc5: 98.13%
+Total Training Time: 1 day, 16:15:41
