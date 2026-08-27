@@ -63,45 +63,45 @@ This table is meant to grow. If you evaluate a backbone we have not covered, ple
 
 Sorted by **EP**. Ties broken by LP.
 
-| # | Family | Method | Arch. | Pre-training | Image size | k-NN | LP | EP |
-|---:|---|---|---|---|---:|---:|---:|---:|
-| 1 | Hybrid | DINOv3 | ViT-7B/16 | LVD-1689M | 224 | [84.2](logs/dinov3_vit7b/knn.txt) | [88.0](logs/dinov3_vit7b/lp.txt) | **[88.4](logs/dinov3_vit7b/ep.txt)**<sup>&dagger;</sup> |
-| 2 | VLM | MetaCLIP2 | ViT-bigG/14-378 | MetaCLIP2-worldwide (300+ langs) | 378 | [80.6](logs/metaclip2_bigg378/knn.txt) | [88.1](logs/metaclip2_bigg378/lp.txt) | [88.1](logs/metaclip2_bigg378/ep.txt) |
-| 3 | VLM | EVA02-CLIP | E-14-plus | LAION-2B (9B seen) | 224 | [82.9](logs/eva02_e14_plus/knn.txt) | [87.8](logs/eva02_e14_plus/lp.txt) | **[88.0](logs/eva02_e14_plus/ep.txt)** |
-| 4 | VLM | EVA02-CLIP | E-14 | LAION-2B (4B seen) | 224 | [82.2](logs/eva02_e14/knn.txt) | [87.4](logs/eva02_e14/lp.txt) | **[87.7](logs/eva02_e14/ep.txt)** |
-| 5 | VLM | SigLIP2 | SO400M/14 | WebLI (10B imgs, 109 langs) | 224 | [77.5](logs/siglip2_so400m/knn.txt)<sup>&sect;</sup> | [86.3](logs/siglip2_so400m/lp.txt)<sup>&sect;</sup> | **[87.7](logs/siglip2_so400m/ep.txt)** |
-| 6 | VLM | PE-Core | L-14/336 | MetaCLIP-curated 5.4B | 336 | [49.1](logs/pe_core_l336/knn.txt)<sup>&sect;</sup> | [85.4](logs/pe_core_l336/lp.txt)<sup>&sect;</sup> | **[87.2](logs/pe_core_l336/ep.txt)** |
-| 7 | VLM | MetaCLIP2 | ViT-bigG/14 | MetaCLIP2-worldwide (300+ langs) | 224 | [79.6](logs/metaclip2_bigg/knn.txt) | [87.1](logs/metaclip2_bigg/lp.txt) | [87.1](logs/metaclip2_bigg/ep.txt) |
-| 8 | VLM | SigLIP2 | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [76.2](logs/siglip2_vitl/knn.txt)<sup>&sect;</sup> | [85.3](logs/siglip2_vitl/lp.txt)<sup>&sect;</sup> | **[87.1](logs/siglip2_vitl/ep.txt)** |
-| 9 | Hybrid | DINOv3 | ViT-L/16 | LVD-1689M | 224 | [83.4](logs/dinov3_vitl/knn.txt) | [86.6](logs/dinov3_vitl/lp.txt) | **[87.0](logs/dinov3_vitl/ep.txt)**<sup>&dagger;</sup> |
-| 10 | GEN | AIMv2 | ViT-L/14 | DFN-2B + COYO + HQITP | 224 | [76.0](logs/aimv2_vitl/knn.txt)<sup>&Dagger;</sup> | [84.7](logs/aimv2_vitl/lp.txt)<sup>&Dagger;</sup> | **[85.9](logs/aimv2_vitl/ep.txt)** |
-| 11 | VLM | SigLIP | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [72.9](logs/siglip_vitl/knn.txt)<sup>&sect;</sup> | [84.2](logs/siglip_vitl/lp.txt)<sup>&sect;</sup> | **[85.9](logs/siglip_vitl/ep.txt)** |
-| 12 | Hybrid | DINOv2 | ViT-L/14 | LVD-142M | 224 | [81.0](logs/dinov2_vitl/knn.txt) | [85.2](logs/dinov2_vitl/lp.txt) | **[85.6](logs/dinov2_vitl/ep.txt)**<sup>&dagger;</sup> |
-| 13 | Hybrid | Franca | ViT-L/14 | LAION-600M | 224 | [78.0](logs/franca_laion/knn.txt) | [83.6](logs/franca_laion/lp.txt) | **[84.3](logs/franca_laion/ep_all.txt)**<sup>&dagger;</sup> |
-| 14 | Hybrid | DINOv3 | ViT-B/16 | LVD-1689M | 224 | [79.6](logs/dinov3_vitb/knn.txt) | [83.9](logs/dinov3_vitb/lp.txt) | **[84.1](logs/dinov3_vitb/ep.txt)**<sup>&dagger;</sup> |
-| 15 | Hybrid | DINOv2 | ViT-B/14 | LVD-142M | 224 | [79.3](logs/dinov2_vitb/knn.txt) | [83.5](logs/dinov2_vitb/lp.txt) | **[84.0](logs/dinov2_vitb/ep.txt)** |
-| 16 | Hybrid | RADIO | ViT-L/16 | distilled (DFN5B/SigLIP/DINOv2/SAM) | 224 | [78.2](logs/radio_v25_l/knn.txt) | **[84.4](logs/radio_v25_l/lp.txt)** | [83.9](logs/radio_v25_l/ep.txt) |
-| 17 | MIM | EVA02 | ViT-L/14 | IN-22K | 224 | [74.0](logs/eva02_vitl_mim/knn.txt) | [82.8](logs/eva02_vitl_mim/lp.txt) | **[83.6](logs/eva02_vitl_mim/ep.txt)** |
-| 18 | VLM | CLIP | ViT-L/14 | WIT-400M | 224 | [73.5](logs/clip_vitl/knn.txt) | [82.5](logs/clip_vitl/lp.txt) | **[83.2](logs/clip_vitl/ep.txt)** |
-| 19 | MIM | CAPI | ViT-L/14 | IN-1K | 224 | [72.9](logs/capi_vitl/knn.txt) | [81.9](logs/capi_vitl/lp.txt) | **[83.0](logs/capi_vitl/ep.txt)** |
-| 20 | MIM | BEiTv2 | ViT-B/16 | IN-1K | 224 | [70.1](logs/beitv2_vitb/knn.txt) | [79.0](logs/beitv2_vitb/lp.txt) | **[81.4](logs/beitv2_vitb/ep.txt)** |
-| 21 | Hybrid | RADIO | ViT-B/16 | distilled (DFN5B/SigLIP/DINOv2/SAM) | 224 | [70.4](logs/radio_v25_b/knn.txt) | [79.7](logs/radio_v25_b/lp.txt) | **[80.3](logs/radio_v25_b/ep.txt)** |
-| 22 | Hybrid | iBOT | ViT-L/16 | IN-1K | 224 | [73.9](logs/ibot_vitl/knn.txt) | **[80.5](logs/ibot_vitl/lp.txt)** | [80.0](logs/ibot_vitl/ep.txt)<sup>&dagger;</sup> |
-| 23 | MIM | Hiera | ViT-H/16 | IN-1K | 224 | [34.7](logs/hiera_huge/knn.txt)<sup>&Dagger;</sup> | [77.3](logs/hiera_huge/lp.txt)<sup>&Dagger;</sup> | **[79.9](logs/hiera_huge/ep.txt)** |
-| 24 | MIM | MAE | ViT-L/16 | IN-1K | 224 | [48.1](logs/mae_vitl/knn.txt) | [76.0](logs/mae_vitl/lp.txt) | **[79.5](logs/mae_vitl/ep.txt)** |
-| 25 | JEA | I-JEPA | ViT-H/14 | IN-1K | 224 | [68.1](logs/ijepa_vith/knn.txt)<sup>&Dagger;</sup> | [78.1](logs/ijepa_vith/lp.txt)<sup>&Dagger;</sup> | **[79.0](logs/ijepa_vith/ep.txt)** |
-| 26 | Hybrid | iBOT | ViT-B/16 | IN-1K | 224 | [73.6](logs/ibot_vitb/knn.txt) | [78.7](logs/ibot_vitb/lp.txt) | **[79.0](logs/ibot_vitb/ep.txt)**<sup>&dagger;</sup> |
-| 27 | MIM | Hiera | ViT-L/16 | IN-1K | 224 | [38.8](logs/hiera_large/knn.txt)<sup>&Dagger;</sup> | [74.1](logs/hiera_large/lp.txt)<sup>&Dagger;</sup> | **[78.5](logs/hiera_large/ep.txt)** |
-| 28 | VLM | CLIP | ViT-B/16 | WIT-400M | 224 | [65.7](logs/clip_vitb16/knn.txt) | **[77.9](logs/clip_vitb16/lp.txt)** | [77.8](logs/clip_vitb16/ep.txt)<sup>&dagger;</sup> |
-| 29 | JEA | DINO | ViT-B/16 | IN-1K | 224 | [71.6](logs/dino_vitb/knn.txt) | [77.2](logs/dino_vitb/lp.txt) | **[77.4](logs/dino_vitb/ep.txt)**<sup>&dagger;</sup> |
-| 30 | JEA | MoCov3 | ViT-B/16 | IN-1K | 224 | [66.8](logs/mocov3_vitb/knn.txt) | [75.7](logs/mocov3_vitb/lp.txt) | **[76.5](logs/mocov3_vitb/ep.txt)**<sup>&dagger;</sup> |
-| 31 | MIM | Hiera | ViT-B/16 | IN-1K | 224 | [39.8](logs/hiera_base/knn.txt)<sup>&Dagger;</sup> | [69.2](logs/hiera_base/lp.txt)<sup>&Dagger;</sup> | **[75.7](logs/hiera_base/ep.txt)** |
-| 32 | MIM | MAE | ViT-B/16 | IN-1K | 224 | [35.6](logs/mae_base/knn.txt) | [67.8](logs/mae_base/lp.txt) | **[75.5](logs/mae_base/ep.txt)** |
-| 33 | MIM | MaskFeat | ViT-B/16 | IN-1K | 224 | [15.9](logs/maskfeat_vitb/knn.txt) | [62.2](logs/maskfeat_vitb/lp.txt) | **[71.8](logs/maskfeat_vitb/ep.txt)** |
-| 34 | MIM | MaskFeat | ViT-L/16 | IN-1K | 224 | [5.7](logs/maskfeat_large/knn.txt) | [40.9](logs/maskfeat_large/lp.txt) | **[69.6](logs/maskfeat_large/ep.txt)** |
-| 35 | MIM | SimMIM | ViT-B/16 | IN-1K | 224 | [8.6](logs/simmim_vitb/knn.txt) | [47.1](logs/simmim_vitb/lp.txt) | **[64.9](logs/simmim_vitb/ep.txt)** |
-| 36 | MIM | MAE | ViT-S/16 | IN-1K | 224 | [18.0](logs/mae_vits/knn.txt) | [47.1](logs/mae_vits/lp.txt) | **[64.6](logs/mae_vits/ep.txt)** |
-| 37 | GEN | DiT | DiT-XL/2 | IN-1K | 256 | [5.2](logs/dit_xl/knn.txt)<sup>&Dagger;</sup> | [32.7](logs/dit_xl/lp.txt)<sup>&Dagger;</sup> | **[57.0](logs/dit_xl/ep.txt)** |
+| # | Family | Method | Arch. | Pre-training | Image size | k-NN | LP | EP | EP head |
+|---:|---|---|---|---|---:|---:|---:|---:|:-:|
+| 1 | Hybrid | DINOv3 | ViT-7B/16 | LVD-1689M | 224 | [84.2](logs/dinov3_vit7b/knn.txt) | [88.0](logs/dinov3_vit7b/lp.txt) | **[88.4](logs/dinov3_vit7b/ep.txt)**<sup>&dagger;</sup> | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/dinov3_vit7b/ep_head.pth) |
+| 2 | VLM | MetaCLIP2 | ViT-bigG/14-378 | MetaCLIP2-worldwide (300+ langs) | 378 | [80.6](logs/metaclip2_bigg378/knn.txt) | [88.1](logs/metaclip2_bigg378/lp.txt) | [88.1](logs/metaclip2_bigg378/ep.txt) | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/metaclip2_bigg378/ep_head.pth) |
+| 3 | VLM | EVA02-CLIP | E-14-plus | LAION-2B (9B seen) | 224 | [82.9](logs/eva02_e14_plus/knn.txt) | [87.8](logs/eva02_e14_plus/lp.txt) | **[88.0](logs/eva02_e14_plus/ep.txt)** | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/eva02_e14_plus/ep_head.pth) |
+| 4 | VLM | EVA02-CLIP | E-14 | LAION-2B (4B seen) | 224 | [82.2](logs/eva02_e14/knn.txt) | [87.4](logs/eva02_e14/lp.txt) | **[87.7](logs/eva02_e14/ep.txt)** | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/eva02_e14/ep_head.pth) |
+| 5 | VLM | SigLIP2 | SO400M/14 | WebLI (10B imgs, 109 langs) | 224 | [77.5](logs/siglip2_so400m/knn.txt)<sup>&sect;</sup> | [86.3](logs/siglip2_so400m/lp.txt)<sup>&sect;</sup> | **[87.7](logs/siglip2_so400m/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/siglip2_so400m/ep_head.pth) |
+| 6 | VLM | PE-Core | L-14/336 | MetaCLIP-curated 5.4B | 336 | [49.1](logs/pe_core_l336/knn.txt)<sup>&sect;</sup> | [85.4](logs/pe_core_l336/lp.txt)<sup>&sect;</sup> | **[87.2](logs/pe_core_l336/ep.txt)** | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/pe_core_l336/ep_head.pth) |
+| 7 | VLM | MetaCLIP2 | ViT-bigG/14 | MetaCLIP2-worldwide (300+ langs) | 224 | [79.6](logs/metaclip2_bigg/knn.txt) | [87.1](logs/metaclip2_bigg/lp.txt) | [87.1](logs/metaclip2_bigg/ep.txt) | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/metaclip2_bigg/ep_head.pth) |
+| 8 | VLM | SigLIP2 | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [76.2](logs/siglip2_vitl/knn.txt)<sup>&sect;</sup> | [85.3](logs/siglip2_vitl/lp.txt)<sup>&sect;</sup> | **[87.1](logs/siglip2_vitl/ep.txt)** | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/siglip2_vitl/ep_head.pth) |
+| 9 | Hybrid | DINOv3 | ViT-L/16 | LVD-1689M | 224 | [83.4](logs/dinov3_vitl/knn.txt) | [86.6](logs/dinov3_vitl/lp.txt) | **[87.0](logs/dinov3_vitl/ep.txt)**<sup>&dagger;</sup> | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/dinov3_vitl/ep_head.pth) |
+| 10 | GEN | AIMv2 | ViT-L/14 | DFN-2B + COYO + HQITP | 224 | [76.0](logs/aimv2_vitl/knn.txt)<sup>&Dagger;</sup> | [84.7](logs/aimv2_vitl/lp.txt)<sup>&Dagger;</sup> | **[85.9](logs/aimv2_vitl/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/aimv2_vitl/ep_head.pth) |
+| 11 | VLM | SigLIP | ViT-L/16 | WebLI (10B imgs, 109 langs) | 256 | [72.9](logs/siglip_vitl/knn.txt)<sup>&sect;</sup> | [84.2](logs/siglip_vitl/lp.txt)<sup>&sect;</sup> | **[85.9](logs/siglip_vitl/ep.txt)** | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/siglip_vitl/ep_head.pth) |
+| 12 | Hybrid | DINOv2 | ViT-L/14 | LVD-142M | 224 | [81.0](logs/dinov2_vitl/knn.txt) | [85.2](logs/dinov2_vitl/lp.txt) | **[85.6](logs/dinov2_vitl/ep.txt)**<sup>&dagger;</sup> | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/dinov2_vitl/ep_head.pth) |
+| 13 | Hybrid | Franca | ViT-L/14 | LAION-600M | 224 | [78.0](logs/franca_laion/knn.txt) | [83.6](logs/franca_laion/lp.txt) | **[84.3](logs/franca_laion/ep_all.txt)**<sup>&dagger;</sup> | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/franca_laion/ep_head.pth) |
+| 14 | Hybrid | DINOv3 | ViT-B/16 | LVD-1689M | 224 | [79.6](logs/dinov3_vitb/knn.txt) | [83.9](logs/dinov3_vitb/lp.txt) | **[84.1](logs/dinov3_vitb/ep.txt)**<sup>&dagger;</sup> | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/dinov3_vitb/ep_head.pth) |
+| 15 | Hybrid | DINOv2 | ViT-B/14 | LVD-142M | 224 | [79.3](logs/dinov2_vitb/knn.txt) | [83.5](logs/dinov2_vitb/lp.txt) | **[84.0](logs/dinov2_vitb/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/dinov2_vitb/ep_head.pth) |
+| 16 | Hybrid | RADIO | ViT-L/16 | distilled (DFN5B/SigLIP/DINOv2/SAM) | 224 | [78.2](logs/radio_v25_l/knn.txt) | **[84.4](logs/radio_v25_l/lp.txt)** | [83.9](logs/radio_v25_l/ep.txt) | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/radio_v25_l/ep_head.pth) |
+| 17 | MIM | EVA02 | ViT-L/14 | IN-22K | 224 | [74.0](logs/eva02_vitl_mim/knn.txt) | [82.8](logs/eva02_vitl_mim/lp.txt) | **[83.6](logs/eva02_vitl_mim/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/eva02_vitl_mim/ep_head.pth) |
+| 18 | VLM | CLIP | ViT-L/14 | WIT-400M | 224 | [73.5](logs/clip_vitl/knn.txt) | [82.5](logs/clip_vitl/lp.txt) | **[83.2](logs/clip_vitl/ep.txt)** | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/clip_vitl/ep_head.pth) |
+| 19 | MIM | CAPI | ViT-L/14 | IN-1K | 224 | [72.9](logs/capi_vitl/knn.txt) | [81.9](logs/capi_vitl/lp.txt) | **[83.0](logs/capi_vitl/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/capi_vitl/ep_head.pth) |
+| 20 | MIM | BEiTv2 | ViT-B/16 | IN-1K | 224 | [70.1](logs/beitv2_vitb/knn.txt) | [79.0](logs/beitv2_vitb/lp.txt) | **[81.4](logs/beitv2_vitb/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/beitv2_vitb/ep_head.pth) |
+| 21 | Hybrid | RADIO | ViT-B/16 | distilled (DFN5B/SigLIP/DINOv2/SAM) | 224 | [70.4](logs/radio_v25_b/knn.txt) | [79.7](logs/radio_v25_b/lp.txt) | **[80.3](logs/radio_v25_b/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/radio_v25_b/ep_head.pth) |
+| 22 | Hybrid | iBOT | ViT-L/16 | IN-1K | 224 | [73.9](logs/ibot_vitl/knn.txt) | **[80.5](logs/ibot_vitl/lp.txt)** | [80.0](logs/ibot_vitl/ep.txt)<sup>&dagger;</sup> | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/ibot_vitl/ep_head.pth) |
+| 23 | MIM | Hiera | ViT-H/16 | IN-1K | 224 | [34.7](logs/hiera_huge/knn.txt)<sup>&Dagger;</sup> | [77.3](logs/hiera_huge/lp.txt)<sup>&Dagger;</sup> | **[79.9](logs/hiera_huge/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/hiera_huge/ep_head.pth) |
+| 24 | MIM | MAE | ViT-L/16 | IN-1K | 224 | [48.1](logs/mae_vitl/knn.txt) | [76.0](logs/mae_vitl/lp.txt) | **[79.5](logs/mae_vitl/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/mae_vitl/ep_head.pth) |
+| 25 | JEA | I-JEPA | ViT-H/14 | IN-1K | 224 | [68.1](logs/ijepa_vith/knn.txt)<sup>&Dagger;</sup> | [78.1](logs/ijepa_vith/lp.txt)<sup>&Dagger;</sup> | **[79.0](logs/ijepa_vith/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/ijepa_vith/ep_head.pth) |
+| 26 | Hybrid | iBOT | ViT-B/16 | IN-1K | 224 | [73.6](logs/ibot_vitb/knn.txt) | [78.7](logs/ibot_vitb/lp.txt) | **[79.0](logs/ibot_vitb/ep.txt)**<sup>&dagger;</sup> | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/ibot_vitb/ep_head.pth) |
+| 27 | MIM | Hiera | ViT-L/16 | IN-1K | 224 | [38.8](logs/hiera_large/knn.txt)<sup>&Dagger;</sup> | [74.1](logs/hiera_large/lp.txt)<sup>&Dagger;</sup> | **[78.5](logs/hiera_large/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/hiera_large/ep_head.pth) |
+| 28 | VLM | CLIP | ViT-B/16 | WIT-400M | 224 | [65.7](logs/clip_vitb16/knn.txt) | **[77.9](logs/clip_vitb16/lp.txt)** | [77.8](logs/clip_vitb16/ep.txt)<sup>&dagger;</sup> | [peak](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/clip_vitb16/ep_head.pth) |
+| 29 | JEA | DINO | ViT-B/16 | IN-1K | 224 | [71.6](logs/dino_vitb/knn.txt) | [77.2](logs/dino_vitb/lp.txt) | **[77.4](logs/dino_vitb/ep.txt)**<sup>&dagger;</sup> | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/dino_vitb/ep_head.pth) |
+| 30 | JEA | MoCov3 | ViT-B/16 | IN-1K | 224 | [66.8](logs/mocov3_vitb/knn.txt) | [75.7](logs/mocov3_vitb/lp.txt) | **[76.5](logs/mocov3_vitb/ep.txt)**<sup>&dagger;</sup> | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/mocov3_vitb/ep_head.pth) |
+| 31 | MIM | Hiera | ViT-B/16 | IN-1K | 224 | [39.8](logs/hiera_base/knn.txt)<sup>&Dagger;</sup> | [69.2](logs/hiera_base/lp.txt)<sup>&Dagger;</sup> | **[75.7](logs/hiera_base/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/hiera_base/ep_head.pth) |
+| 32 | MIM | MAE | ViT-B/16 | IN-1K | 224 | [35.6](logs/mae_base/knn.txt) | [67.8](logs/mae_base/lp.txt) | **[75.5](logs/mae_base/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/mae_base/ep_head.pth) |
+| 33 | MIM | MaskFeat | ViT-B/16 | IN-1K | 224 | [15.9](logs/maskfeat_vitb/knn.txt) | [62.2](logs/maskfeat_vitb/lp.txt) | **[71.8](logs/maskfeat_vitb/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/maskfeat_vitb/ep_head.pth) |
+| 34 | MIM | MaskFeat | ViT-L/16 | IN-1K | 224 | [5.7](logs/maskfeat_large/knn.txt) | [40.9](logs/maskfeat_large/lp.txt) | **[69.6](logs/maskfeat_large/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/maskfeat_large/ep_head.pth) |
+| 35 | MIM | SimMIM | ViT-B/16 | IN-1K | 224 | [8.6](logs/simmim_vitb/knn.txt) | [47.1](logs/simmim_vitb/lp.txt) | **[64.9](logs/simmim_vitb/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/simmim_vitb/ep_head.pth) |
+| 36 | MIM | MAE | ViT-S/16 | IN-1K | 224 | [18.0](logs/mae_vits/knn.txt) | [47.1](logs/mae_vits/lp.txt) | **[64.6](logs/mae_vits/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/mae_vits/ep_head.pth) |
+| 37 | GEN | DiT | DiT-XL/2 | IN-1K | 256 | [5.2](logs/dit_xl/knn.txt)<sup>&Dagger;</sup> | [32.7](logs/dit_xl/lp.txt)<sup>&Dagger;</sup> | **[57.0](logs/dit_xl/ep.txt)** | &mdash; |
 
 **Legend.**
 
@@ -146,6 +146,11 @@ Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectur
 - **Image size** is the evaluation resolution and is not constant (256 for SigLIP/SigLIP2/DiT,
   336 for PE-Core, 378 for MetaCLIP2-378), so rows at different resolutions are not exactly
   like-for-like.
+- **EP heads are downloadable**: the *EP head* column links each row's trained head on
+  [HuggingFace](https://huggingface.co/billpsomas/efficient-probing-heads). *peak* means the
+  file is the run's best epoch and reproduces the EP number exactly; *final* means the
+  run's last epoch, whose own accuracy is recorded in the file's metadata next to the
+  table figure. Heads contain no backbone weights; each config.json names the encoder.
 
 <details>
 <summary><b>Grouped by family</b> (same rows, ordered by paradigm)</summary>

@@ -30,6 +30,8 @@ CSV columns
     lp_log      repo-relative path to the LP training log (blank if not published)
     ep_log      repo-relative path to the EP training log (blank if not published)
     notes       free text; non-empty rows are listed under Provenance
+    ep_head     peak | final | blank -- whether the released EP head on HF is the
+                run's best epoch (reproduces the table number) or its final epoch
 
 A row is REPRODUCIBLE only when model, loader, ep_queries, ep_variant and
 lp_variant are all recorded. Anything else is reported as unverified rather
@@ -91,6 +93,11 @@ NOTES_BLOCK = [
     '- **Image size** is the evaluation resolution and is not constant (256 for SigLIP/SigLIP2/DiT,',
     '  336 for PE-Core, 378 for MetaCLIP2-378), so rows at different resolutions are not exactly',
     '  like-for-like.',
+    '- **EP heads are downloadable**: the *EP head* column links each row\'s trained head on',
+    '  [HuggingFace](https://huggingface.co/billpsomas/efficient-probing-heads). *peak* means the',
+    '  file is the run\'s best epoch and reproduces the EP number exactly; *final* means the',
+    '  run\'s last epoch, whose own accuracy is recorded in the file\'s metadata next to the',
+    '  table figure. Heads contain no backbone weights; each config.json names the encoder.',
 ]
 
 
@@ -220,6 +227,24 @@ def knn_cell(r):
     return f"{cell}{MARK_ATTN if reason == 'attn_pool' else MARK_NO_CLS}"
 
 
+HF_HEADS = "https://huggingface.co/billpsomas/efficient-probing-heads/blob/main"
+
+
+def head_cell(r):
+    """Link to the released EP head, the link text saying what the file is.
+
+    "peak" = the run's best epoch, so loading it reproduces the EP number in this
+    row exactly. "final" = the run's last epoch; its own accuracy is recorded in
+    the file's metadata alongside the table figure. An em-dash means no head
+    survives for this row.
+    """
+    status = r.get("ep_head", "").strip()
+    if not status:
+        return "&mdash;"
+    slug = os.path.basename(os.path.dirname(r["ep_log"]))
+    return "[%s](%s/%s/ep_head.pth)" % (status, HF_HEADS, slug)
+
+
 def ep_cell(r, bold=False):
     """Pending EP renders as an em-dash; ep_all rows carry a marker."""
     if r["ep"].strip() in ("-", ""):
@@ -261,12 +286,12 @@ def render(rows):
 
     # --- main leaderboard, ranked by EP ---
     ranked = sorted(rows, key=lambda r: (-ep_val(r), -lp_val(r)))
-    out += ["| # | Family | Method | Arch. | Pre-training | Image size | k-NN | LP | EP |",
-            "|---:|---|---|---|---|---:|---:|---:|---:|"]
+    out += ["| # | Family | Method | Arch. | Pre-training | Image size | k-NN | LP | EP | EP head |",
+            "|---:|---|---|---|---|---:|---:|---:|---:|:-:|"]
     for i, r in enumerate(ranked, start=1):
         out.append(f"| {i} | {r['family']} | {r['method']} | {r['arch']} | {r['pretrain']} | "
                    f"{r['image_size']} | {knn_cell(r)} | {lp_cell(r, wins(r) == 'lp')} | "
-                   f"{ep_cell(r, wins(r) == 'ep')} |")
+                   f"{ep_cell(r, wins(r) == 'ep')} | {head_cell(r)} |")
     waiting = [r for r in rows if r.get("waiting", "").strip()]
     out += [""]
     n_all = sum(1 for r in rows if r.get("ep_variant", "").strip() == "ep_all")
