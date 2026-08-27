@@ -36,11 +36,13 @@ import torch
 PIN = {
     ("EVA02-CLIP", "E-14"): "outputs/imagenet/vit_e/linprobe_eva02_e14_ep_q32_d1_imagenet1k",
     ("SigLIP2", "SO400M/14"): "outputs/imagenet/so400m/linprobe_siglip2_so400m_ep_q32_d1_imagenet1k",
+    # the DiT run predates this repo: it lives in the original attention-mim tree.
+    # Verified to be the published run -- epoch rows identical to logs/dit_xl/ep.txt,
+    # head 2,627,560 params (the Q=128 witness).
+    ("DiT", "DiT-XL/2"): "/projappl/project_465003083/psomasva/code/attention-mim/"
+                         "outputs/imagenet/dit_xl/linprobe_dit_xl_ep128_imagenet1k",
 }
-MISSING = {
-    ("DiT", "DiT-XL/2"): "no surviving checkpoint: the run's output directory was deleted "
-                         "after its logs were published; re-run required to export a head",
-}
+MISSING = {}
 
 
 def loginfo(path):

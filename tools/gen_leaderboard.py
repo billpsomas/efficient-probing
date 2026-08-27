@@ -97,7 +97,11 @@ NOTES_BLOCK = [
     '  [HuggingFace](https://huggingface.co/billpsomas/efficient-probing-heads). *peak* means the',
     '  file is the run\'s best epoch and reproduces the EP number exactly; *final* means the',
     '  run\'s last epoch, whose own accuracy is recorded in the file\'s metadata next to the',
-    '  table figure. Heads contain no backbone weights; each config.json names the encoder.',
+    '  table figure. The split exists because the training code initially kept only a rolling',
+    '  per-epoch checkpoint, so finished runs left their final epoch behind; best-epoch saving',
+    '  was added later, and the 12 early-peaking models -- where final and best differ most --',
+    '  were re-run under identical settings to recapture their peaks. Heads contain no backbone',
+    '  weights; each config.json names the encoder.',
 ]
 
 

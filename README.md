@@ -101,7 +101,7 @@ Sorted by **EP**. Ties broken by LP.
 | 34 | MIM | MaskFeat | ViT-L/16 | IN-1K | 224 | [5.7](logs/maskfeat_large/knn.txt) | [40.9](logs/maskfeat_large/lp.txt) | **[69.6](logs/maskfeat_large/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/maskfeat_large/ep_head.pth) |
 | 35 | MIM | SimMIM | ViT-B/16 | IN-1K | 224 | [8.6](logs/simmim_vitb/knn.txt) | [47.1](logs/simmim_vitb/lp.txt) | **[64.9](logs/simmim_vitb/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/simmim_vitb/ep_head.pth) |
 | 36 | MIM | MAE | ViT-S/16 | IN-1K | 224 | [18.0](logs/mae_vits/knn.txt) | [47.1](logs/mae_vits/lp.txt) | **[64.6](logs/mae_vits/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/mae_vits/ep_head.pth) |
-| 37 | GEN | DiT | DiT-XL/2 | IN-1K | 256 | [5.2](logs/dit_xl/knn.txt)<sup>&Dagger;</sup> | [32.7](logs/dit_xl/lp.txt)<sup>&Dagger;</sup> | **[57.0](logs/dit_xl/ep.txt)** | &mdash; |
+| 37 | GEN | DiT | DiT-XL/2 | IN-1K | 256 | [5.2](logs/dit_xl/knn.txt)<sup>&Dagger;</sup> | [32.7](logs/dit_xl/lp.txt)<sup>&Dagger;</sup> | **[57.0](logs/dit_xl/ep.txt)** | [final](https://huggingface.co/billpsomas/efficient-probing-heads/blob/main/dit_xl/ep_head.pth) |
 
 **Legend.**
 
@@ -150,7 +150,11 @@ Paradigms: **MIM** masked image modelling · **JEA** joint-embedding architectur
   [HuggingFace](https://huggingface.co/billpsomas/efficient-probing-heads). *peak* means the
   file is the run's best epoch and reproduces the EP number exactly; *final* means the
   run's last epoch, whose own accuracy is recorded in the file's metadata next to the
-  table figure. Heads contain no backbone weights; each config.json names the encoder.
+  table figure. The split exists because the training code initially kept only a rolling
+  per-epoch checkpoint, so finished runs left their final epoch behind; best-epoch saving
+  was added later, and the 12 early-peaking models -- where final and best differ most --
+  were re-run under identical settings to recapture their peaks. Heads contain no backbone
+  weights; each config.json names the encoder.
 
 <details>
 <summary><b>Grouped by family</b> (same rows, ordered by paradigm)</summary>
@@ -1282,7 +1286,7 @@ Unless noted here, a row is our own run: 90 epochs, no early stopping, both arms
 - `MaskFeat ViT-L/16` — This checkpoint's 1000-way head is entirely NaN; main_linprobe drops head.weight/head.bias and refuses NaN tensors, without which training dies at epoch 0 with "Loss is nan". LP peaks ep88, EP ep84. k-NN reported as raw (5.72) like every other row; final_norm gives 5.75. Inverted scaling: ViT-L trails ViT-B on all three measures -- k-NN 5.7 vs 15.9, LP 40.9 vs 62.2, EP 69.6 vs 71.8.
 - `SimMIM ViT-B/16` — Both arms peak at ep84. LP is 4.35 below the paper number, EP 0.24 below. Checkpoint converted by the [Beyond [cls]](https://github.com/gmum/beyond_cls) authors; not redistributable.
 - `MAE ViT-S/16` — Checkpoint converted by the [Beyond [cls]](https://github.com/gmum/beyond_cls) authors; not redistributable.
-- `DiT DiT-XL/2` — Both arms manually stopped at epoch 87-89 of 90. The only row at Q=128 (head 2,627,560 = 1152^2 + 128*1152 + 1152*1000 + 1000). No [CLS], so GAP is forced. --dit_ckpt and --vae are omitted from the command: they default to DiT-XL-2-256x256.pt and sd-vae-ft-mse.
+- `DiT DiT-XL/2` — Both arms manually stopped at epoch 87-89 of 90. The only row at Q=128 (head 2,627,560 = 1152^2 + 128*1152 + 1152*1000 + 1000). No [CLS], so GAP is forced. --dit_ckpt and --vae are omitted from the command: they default to DiT-XL-2-256x256.pt and sd-vae-ft-mse. The released EP head is this run's final-epoch checkpoint (ep86, 56.94, 0.06 below the ep85 peak), recovered from the original attention-mim tree and verified against the published log line by line
 
 </details>
 <!-- LEADERBOARD:END -->
