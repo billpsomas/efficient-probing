@@ -85,16 +85,18 @@ def main():
         "class present in the image (after mapping equivalents), the 1,516 no-class images are "
         "excluded, leaving 48,484. Rerun with `tools/eval_reimagenet.py`; the annotations are "
         "gated on HuggingFace and not redistributed here.", "",
-        "| model | LP (IN) | LP (RIN) | EP (IN) | EP (RIN) |",
-        "|---|---:|---:|---:|---:|"]
+        "| model | LP (IN) | LP (RIN) | &Delta; | EP (IN) | EP (RIN) | &Delta; |",
+        "|---|---:|---:|---:|---:|---:|---:|"]
     for nm, li, lr, ei, er in table:
-        lines.append("| %s | %.2f | %s | %.2f | %s |" % (nm, li, lr, ei, er))
+        lines.append("| %s | %.2f | %s | %+.2f | %.2f | %s | %+.2f |"
+                     % (nm, li, lr, float(lr) - li, ei, er, float(er) - ei))
     lines += ["",
         "IN = the leaderboard's best-epoch top-1 on the full 50k val; RIN = ReImageNet "
         "multilabel top-1 on the 48,484-image subset, evaluated with the released head. A RIN "
         "row is shown only when both heads are the run's peak or within 0.25 of it, so the two "
         "columns always describe comparable heads; the remaining rows appear as their heads are "
-        "recaptured. Two "
+        "recaptured. &Delta; = RIN &minus; IN; part of every &Delta; (~+1.2) comes from "
+        "excluding the 1,516 no-class images, the rest from genuine multilabel credit. Two "
         "patterns worth reading off: the RIN&minus;IN gap **shrinks as encoders get stronger** "
         "(weak MIM probes gain 3+, frontier models 1.1&ndash;1.5 &mdash; strong probes track "
         "ImageNet's label errors more faithfully), and the top-5 ordering is the same under "

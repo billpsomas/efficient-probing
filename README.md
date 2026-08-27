@@ -1393,34 +1393,34 @@ record the stop. PE-Core's LP pooled figure is a full run.
 
 [ReImageNet](https://huggingface.co/datasets/vrg-prague/ReImageNet) (Volkov, Kisel, Mishkina, Janou&scaron;kov&aacute;, Matas &mdash; *"Doomed to Re-Annotate, Forever: The ImageNet Story"*, [arXiv:2608.13783](https://arxiv.org/abs/2608.13783), CC BY 4.0) re-annotates the ImageNet-1k **validation set**: roughly 12% of the original labels are wrong, a third of images contain more than one labelable object, ~3% contain no ImageNet class at all, and 14 near-duplicate class pairs (laptop/notebook, sunglasses/sunglass, ...) are declared equivalent. Training is untouched, so every probe below is the **same trained head** as in the leaderboard, re-scored: a prediction counts if it names any class present in the image (after mapping equivalents), the 1,516 no-class images are excluded, leaving 48,484. Rerun with `tools/eval_reimagenet.py`; the annotations are gated on HuggingFace and not redistributed here.
 
-| model | LP (IN) | LP (RIN) | EP (IN) | EP (RIN) |
-|---|---:|---:|---:|---:|
-| DINOv3 ViT-7B/16 | 87.95 | 89.45 | 88.36 | 89.76 |
-| EVA02-CLIP E-14-plus | 87.82 | 89.17 | 87.98 | 89.34 |
-| MetaCLIP2 ViT-bigG/14-378 | 88.09 | 89.17 | 88.12 | 89.27 |
-| EVA02-CLIP E-14 | 87.44 | 89.01 | 87.70 | 89.16 |
-| PE-Core L-14/336 | 85.44 | 87.27 | 87.25 | 88.75 |
-| SigLIP2 ViT-L/16 | 85.31 | 87.33 | 87.06 | 88.72 |
-| MetaCLIP2 ViT-bigG/14 | 87.07 | 88.41 | 87.11 | 88.48 |
-| SigLIP ViT-L/16 | 84.17 | 86.38 | 85.93 | 87.96 |
-| DINOv2 ViT-L/14 | 85.25 | 87.64 | 85.56 | 87.80 |
-| Franca ViT-L/14 | 83.63 | 86.57 | 84.28 | 86.94 |
-| CLIP ViT-L/14 | 82.51 | 84.95 | 83.22 | 85.61 |
-| BEiTv2 ViT-B/16 | 78.99 | 81.97 | 81.39 | 84.05 |
-| RADIO ViT-B/16 | 79.72 | 82.40 | 80.29 | 83.01 |
-| Hiera ViT-H/16 | 77.28 | 80.38 | 79.89 | 82.76 |
-| MAE ViT-L/16 | 76.01 | 79.08 | 79.52 | 82.20 |
-| Hiera ViT-L/16 | 74.09 | 77.39 | 78.55 | 81.68 |
-| I-JEPA ViT-H/14 | 78.08 | 80.93 | 79.00 | 81.62 |
-| CLIP ViT-B/16 | 77.86 | 80.64 | 77.85 | 80.69 |
-| Hiera ViT-B/16 | 69.25 | 72.71 | 75.68 | 78.93 |
-| MAE ViT-B/16 | 67.78 | 71.00 | 75.46 | 78.54 |
-| MaskFeat ViT-B/16 | 62.24 | 65.85 | 71.76 | 75.13 |
-| MaskFeat ViT-L/16 | 40.85 | 43.37 | 69.63 | 73.00 |
-| SimMIM ViT-B/16 | 47.15 | 49.99 | 64.86 | 68.21 |
-| MAE ViT-S/16 | 47.08 | 49.82 | 64.58 | 67.90 |
+| model | LP (IN) | LP (RIN) | &Delta; | EP (IN) | EP (RIN) | &Delta; |
+|---|---:|---:|---:|---:|---:|---:|
+| DINOv3 ViT-7B/16 | 87.95 | 89.45 | +1.50 | 88.36 | 89.76 | +1.40 |
+| EVA02-CLIP E-14-plus | 87.82 | 89.17 | +1.35 | 87.98 | 89.34 | +1.36 |
+| MetaCLIP2 ViT-bigG/14-378 | 88.09 | 89.17 | +1.08 | 88.12 | 89.27 | +1.15 |
+| EVA02-CLIP E-14 | 87.44 | 89.01 | +1.57 | 87.70 | 89.16 | +1.46 |
+| PE-Core L-14/336 | 85.44 | 87.27 | +1.83 | 87.25 | 88.75 | +1.50 |
+| SigLIP2 ViT-L/16 | 85.31 | 87.33 | +2.02 | 87.06 | 88.72 | +1.66 |
+| MetaCLIP2 ViT-bigG/14 | 87.07 | 88.41 | +1.34 | 87.11 | 88.48 | +1.37 |
+| SigLIP ViT-L/16 | 84.17 | 86.38 | +2.21 | 85.93 | 87.96 | +2.03 |
+| DINOv2 ViT-L/14 | 85.25 | 87.64 | +2.39 | 85.56 | 87.80 | +2.24 |
+| Franca ViT-L/14 | 83.63 | 86.57 | +2.94 | 84.28 | 86.94 | +2.66 |
+| CLIP ViT-L/14 | 82.51 | 84.95 | +2.44 | 83.22 | 85.61 | +2.39 |
+| BEiTv2 ViT-B/16 | 78.99 | 81.97 | +2.98 | 81.39 | 84.05 | +2.66 |
+| RADIO ViT-B/16 | 79.72 | 82.40 | +2.68 | 80.29 | 83.01 | +2.72 |
+| Hiera ViT-H/16 | 77.28 | 80.38 | +3.10 | 79.89 | 82.76 | +2.87 |
+| MAE ViT-L/16 | 76.01 | 79.08 | +3.07 | 79.52 | 82.20 | +2.68 |
+| Hiera ViT-L/16 | 74.09 | 77.39 | +3.30 | 78.55 | 81.68 | +3.13 |
+| I-JEPA ViT-H/14 | 78.08 | 80.93 | +2.85 | 79.00 | 81.62 | +2.62 |
+| CLIP ViT-B/16 | 77.86 | 80.64 | +2.78 | 77.85 | 80.69 | +2.84 |
+| Hiera ViT-B/16 | 69.25 | 72.71 | +3.46 | 75.68 | 78.93 | +3.25 |
+| MAE ViT-B/16 | 67.78 | 71.00 | +3.22 | 75.46 | 78.54 | +3.08 |
+| MaskFeat ViT-B/16 | 62.24 | 65.85 | +3.61 | 71.76 | 75.13 | +3.37 |
+| MaskFeat ViT-L/16 | 40.85 | 43.37 | +2.52 | 69.63 | 73.00 | +3.37 |
+| SimMIM ViT-B/16 | 47.15 | 49.99 | +2.84 | 64.86 | 68.21 | +3.35 |
+| MAE ViT-S/16 | 47.08 | 49.82 | +2.74 | 64.58 | 67.90 | +3.32 |
 
-IN = the leaderboard's best-epoch top-1 on the full 50k val; RIN = ReImageNet multilabel top-1 on the 48,484-image subset, evaluated with the released head. A RIN row is shown only when both heads are the run's peak or within 0.25 of it, so the two columns always describe comparable heads; the remaining rows appear as their heads are recaptured. Two patterns worth reading off: the RIN&minus;IN gap **shrinks as encoders get stronger** (weak MIM probes gain 3+, frontier models 1.1&ndash;1.5 &mdash; strong probes track ImageNet's label errors more faithfully), and the top-5 ordering is the same under both label sets.
+IN = the leaderboard's best-epoch top-1 on the full 50k val; RIN = ReImageNet multilabel top-1 on the 48,484-image subset, evaluated with the released head. A RIN row is shown only when both heads are the run's peak or within 0.25 of it, so the two columns always describe comparable heads; the remaining rows appear as their heads are recaptured. &Delta; = RIN &minus; IN; part of every &Delta; (~+1.2) comes from excluding the 1,516 no-class images, the rest from genuine multilabel credit. Two patterns worth reading off: the RIN&minus;IN gap **shrinks as encoders get stronger** (weak MIM probes gain 3+, frontier models 1.1&ndash;1.5 &mdash; strong probes track ImageNet's label errors more faithfully), and the top-5 ordering is the same under both label sets.
 
 </details>
 <!-- REIMAGENET:END -->
