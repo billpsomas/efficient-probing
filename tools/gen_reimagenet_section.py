@@ -65,6 +65,8 @@ def main():
                     cell[arm] = "*pending*"; pend += 1
             else:
                 cell[arm] = "*pending*"; pend += 1
+        if "*pending*" in (cell["LP"], cell["EP"]):
+            continue          # a row appears only once BOTH its heads qualify
         table.append((nm, float(r["lp"]), cell["LP"], float(r["ep"]), cell["EP"]))
     table.sort(key=lambda x: (-(float(x[4]) if x[4][0].isdigit() else -1), -x[3]))
 
@@ -90,8 +92,9 @@ def main():
     lines += ["",
         "IN = the leaderboard's best-epoch top-1 on the full 50k val; RIN = ReImageNet "
         "multilabel top-1 on the 48,484-image subset, evaluated with the released head. A RIN "
-        "cell is shown only when that head is the run's peak or within 0.25 of it, so the two "
-        "columns always describe comparable heads; *pending* cells are being recaptured. Two "
+        "row is shown only when both heads are the run's peak or within 0.25 of it, so the two "
+        "columns always describe comparable heads; the remaining rows appear as their heads are "
+        "recaptured. Two "
         "patterns worth reading off: the RIN&minus;IN gap **shrinks as encoders get stronger** "
         "(weak MIM probes gain 3+, frontier models 1.1&ndash;1.5 &mdash; strong probes track "
         "ImageNet's label errors more faithfully), and the top-5 ordering is the same under "

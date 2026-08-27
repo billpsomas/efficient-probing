@@ -1419,21 +1419,8 @@ record the stop. PE-Core's LP pooled figure is a full run.
 | MaskFeat ViT-L/16 | 40.85 | 43.37 | 69.63 | 73.00 |
 | SimMIM ViT-B/16 | 47.15 | 49.99 | 64.86 | 68.21 |
 | MAE ViT-S/16 | 47.08 | 49.82 | 64.58 | 67.90 |
-| SigLIP2 SO400M/14 | 86.27 | *pending* | 87.68 | *pending* |
-| DINOv3 ViT-L/16 | 86.62 | *pending* | 87.05 | *pending* |
-| AIMv2 ViT-L/14 | 84.72 | 86.72 | 85.94 | *pending* |
-| DINOv3 ViT-B/16 | 83.94 | *pending* | 84.11 | *pending* |
-| DINOv2 ViT-B/14 | 83.55 | 85.94 | 84.01 | *pending* |
-| RADIO ViT-L/16 | 84.36 | 86.35 | 83.89 | *pending* |
-| EVA02 ViT-L/14 | 82.76 | 85.08 | 83.58 | *pending* |
-| CAPI ViT-L/14 | 81.94 | 84.43 | 82.98 | *pending* |
-| iBOT ViT-L/16 | 80.54 | *pending* | 79.97 | *pending* |
-| iBOT ViT-B/16 | 78.74 | *pending* | 78.98 | *pending* |
-| DINO ViT-B/16 | 77.19 | 80.08 | 77.39 | *pending* |
-| MoCov3 ViT-B/16 | 75.70 | 78.59 | 76.53 | *pending* |
-| DiT DiT-XL/2 | 32.70 | *pending* | 57.00 | *pending* |
 
-IN = the leaderboard's best-epoch top-1 on the full 50k val; RIN = ReImageNet multilabel top-1 on the 48,484-image subset, evaluated with the released head. A RIN cell is shown only when that head is the run's peak or within 0.25 of it, so the two columns always describe comparable heads; *pending* cells are being recaptured. Two patterns worth reading off: the RIN&minus;IN gap **shrinks as encoders get stronger** (weak MIM probes gain 3+, frontier models 1.1&ndash;1.5 &mdash; strong probes track ImageNet's label errors more faithfully), and the top-5 ordering is the same under both label sets.
+IN = the leaderboard's best-epoch top-1 on the full 50k val; RIN = ReImageNet multilabel top-1 on the 48,484-image subset, evaluated with the released head. A RIN row is shown only when both heads are the run's peak or within 0.25 of it, so the two columns always describe comparable heads; the remaining rows appear as their heads are recaptured. Two patterns worth reading off: the RIN&minus;IN gap **shrinks as encoders get stronger** (weak MIM probes gain 3+, frontier models 1.1&ndash;1.5 &mdash; strong probes track ImageNet's label errors more faithfully), and the top-5 ordering is the same under both label sets.
 
 </details>
 <!-- REIMAGENET:END -->
