@@ -1398,6 +1398,7 @@ record the stop. PE-Core's LP pooled figure is a full run.
 | DINOv3 ViT-7B/16 | 87.95 | 89.45 | +1.50 | 88.36 | 89.76 | +1.40 |
 | EVA02-CLIP E-14-plus | 87.82 | 89.17 | +1.35 | 87.98 | 89.34 | +1.36 |
 | MetaCLIP2 ViT-bigG/14-378 | 88.09 | 89.17 | +1.08 | 88.12 | 89.27 | +1.15 |
+| SigLIP2 SO400M/14 | 86.27 | 88.13 | +1.86 | 87.68 | 89.20 | +1.52 |
 | EVA02-CLIP E-14 | 87.44 | 89.01 | +1.57 | 87.70 | 89.16 | +1.46 |
 | PE-Core L-14/336 | 85.44 | 87.27 | +1.83 | 87.25 | 88.75 | +1.50 |
 | SigLIP2 ViT-L/16 | 85.31 | 87.33 | +2.02 | 87.06 | 88.72 | +1.66 |
@@ -1419,6 +1420,7 @@ record the stop. PE-Core's LP pooled figure is a full run.
 | MaskFeat ViT-L/16 | 40.85 | 43.37 | +2.52 | 69.63 | 73.00 | +3.37 |
 | SimMIM ViT-B/16 | 47.15 | 49.99 | +2.84 | 64.86 | 68.21 | +3.35 |
 | MAE ViT-S/16 | 47.08 | 49.82 | +2.74 | 64.58 | 67.90 | +3.32 |
+| DiT DiT-XL/2 | 32.70 | 37.23 | +4.53 | 57.00 | 61.22 | +4.22 |
 
 IN = the leaderboard's best-epoch top-1 on the full 50k val; RIN = ReImageNet multilabel top-1 on the 48,484-image subset, evaluated with the released head. A RIN row is shown only when both heads are the run's peak or within 0.25 of it, so the two columns always describe comparable heads; the remaining rows appear as their heads are recaptured. &Delta; = RIN &minus; IN; part of every &Delta; (~+1.2) comes from excluding the 1,516 no-class images, the rest from genuine multilabel credit. Two patterns worth reading off: the RIN&minus;IN gap **shrinks as encoders get stronger** (weak MIM probes gain 3+, frontier models 1.1&ndash;1.5 &mdash; strong probes track ImageNet's label errors more faithfully), and the top-5 ordering is the same under both label sets.
 
