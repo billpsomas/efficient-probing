@@ -188,13 +188,28 @@ def get_args_parser():
     return parser
 
 
+def _imagefolder_or_packed(root, transform=None):
+    """ImageNet as a loose ImageFolder tree, or as the packed shards written by
+    tools/pack_imagenet.py -- same samples, same order, byte-identical images,
+    a thousandth of the inodes. The loose tree wins when both forms exist (the
+    historical behaviour); EP_PACKED=1 forces the packed form for A/B checks.
+    No flag changes: the same --data_path serves either layout.
+    """
+    packed = root.rstrip("/") + ".index.npz"
+    if os.path.exists(packed) and (os.environ.get("EP_PACKED") == "1"
+                                   or not os.path.isdir(root)):
+        from util.packed_dataset import PackedImageFolder
+        return PackedImageFolder(root, transform=transform)
+    return datasets.ImageFolder(root=root, transform=transform)
+
+
 # name -> (constructor, train kwargs, val kwargs). Root is --data_path unless the
 # entry names a subdirectory. The per-dataset asymmetries here are deliberate and
 # match what these benchmarks ship: FGVCAircraft and DTD evaluate on their 'val'
 # split rather than 'test', CUB200 has no download support, and STL10 is the only
 # one fetched on demand.
 DATASET_SPECS = {
-    "imagenet1k":    (datasets.ImageFolder,   {"subdir": "train"}, {"subdir": "val"}),
+    "imagenet1k":    (_imagefolder_or_packed,  {"subdir": "train"}, {"subdir": "val"}),
     "places365":     (datasets.Places365,     {"split": "train-standard", "small": True, "download": False},
                                               {"split": "val", "small": True, "download": False}),
     "CIFAR100":      (datasets.CIFAR100,      {"train": True, "download": False},

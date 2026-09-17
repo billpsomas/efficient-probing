@@ -102,6 +102,13 @@ NOTES_BLOCK = [
     '  was added later, and the 12 early-peaking models -- where final and best differ most --',
     '  were re-run under identical settings to recapture their peaks. Heads contain no backbone',
     '  weights; each config.json names the encoder.',
+    '- **ImageNet can be packed into ~80 files.** Loose ImageNet-1k is ~1.33M files, which',
+    '  exhausts the inode quota on many clusters long before the disk fills.',
+    '  `python tools/pack_imagenet.py pack --data_path /path/to/imagenet` rewrites each split as',
+    '  ~2 GiB shards of concatenated, byte-identical JPEGs plus an index, and `verify` checks the',
+    '  result against the loose tree before you delete it. Every command runs unchanged on either',
+    '  layout &mdash; the same `--data_path` is auto-detected &mdash; with identical sample order,',
+    '  so results are bit-reproducible across the two forms.',
 ]
 
 
