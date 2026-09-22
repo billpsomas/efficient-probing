@@ -15,7 +15,9 @@ import torchvision.transforms as T
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-VAL = "/scratch/project_465003083/psomasva/datasets/imagenet/val"
+from util import paths
+
+VAL = os.path.join(paths.IMAGENET, "val")
 BIRD_WNIDS = ["n01530575", "n01531178", "n01560419", "n01580077",
               "n01592084", "n01614925", "n01824575"]
 

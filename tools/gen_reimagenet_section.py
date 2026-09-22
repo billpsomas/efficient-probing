@@ -8,18 +8,22 @@ whose head is further from the peak render as pending until that model is
 recaptured -- showing them would compare a weaker head's RIN against a stronger
 head's IN, which is exactly the artifact this rule exists to avoid.
 
-Inputs (maintainer-local, not in the repo):
-    ~/ep_release_notes/reimagenet_best_scores.txt      peak-head scores
-    ~/ep_release_notes/reimagenet_lastepoch_table.txt  final-head scores
-    <release>/manifest.json                            per-EP-head drift
+Inputs (maintainer-local, not in the repo -- see util/paths.py for the EP_NOTES
+and EP_RELEASE variables that say where they live):
+    $EP_NOTES/release/reimagenet_best_scores.txt      peak-head scores
+    $EP_NOTES/release/reimagenet_lastepoch_table.txt  final-head scores
+    $EP_RELEASE/manifest.json                         per-EP-head drift
 Replaces the block between REIMAGENET:START/END markers in README.md.
 """
 import csv, json, os, re, sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SC = os.path.expanduser("~/ep_release_notes/reimagenet_best_scores.txt")
-LAST = os.path.expanduser("~/ep_release_notes/reimagenet_lastepoch_table.txt")
-MAN = "/scratch/project_465003083/psomasva/ep_heads_release/manifest.json"
+sys.path.insert(0, REPO)
+from util import paths
+
+SC = os.path.join(paths.NOTES, "release", "reimagenet_best_scores.txt")
+LAST = os.path.join(paths.NOTES, "release", "reimagenet_lastepoch_table.txt")
+MAN = os.path.join(paths.RELEASE, "manifest.json")
 START, END = "<!-- REIMAGENET:START -->", "<!-- REIMAGENET:END -->"
 DRIFT_OK = 0.25
 

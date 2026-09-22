@@ -163,3 +163,16 @@ cython_debug/
 #.idea/
 checkpoints/
 outputs/
+
+# Heavy artifacts live outside the checkout and are reached through these names,
+# which on a cluster are symlinks into big storage. No trailing slash: a symlink
+# is a file to git, and committing one would publish an absolute cluster path.
+# util/paths.py resolves the same locations from $EP_* for anything scripted.
+outputs
+checkpoints
+pretrained_models
+data
+release
+preds
+work
+notes

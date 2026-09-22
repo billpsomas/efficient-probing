@@ -27,6 +27,9 @@ import sys
 
 import torch
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from util import paths
+
 
 def sha_params(named):
     h = hashlib.sha256()
@@ -106,7 +109,7 @@ def main():
     # DIFFERENT builders in backbones.py -- two prefix-dispatched, three flag-
     # dispatched -- because that file's bodies were transcribed by hand and only its
     # dispatch ORDER is otherwise verified. All use already-cached weights.
-    HUB = "/scratch/project_465003083/psomasva/cache/torch/hub/checkpoints"
+    HUB = paths.HUB_CHECKPOINTS
     GROUPS = {
         "vit": [
             ("vit_base_patch16", "ep", {}),
