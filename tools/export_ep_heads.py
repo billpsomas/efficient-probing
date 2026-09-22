@@ -36,16 +36,12 @@ import torch
 PIN = {
     ("EVA02-CLIP", "E-14"): "outputs/imagenet/vit_e/linprobe_eva02_e14_ep_q32_d1_imagenet1k",
     ("SigLIP2", "SO400M/14"): "outputs/imagenet/so400m/linprobe_siglip2_so400m_ep_q32_d1_imagenet1k",
+    # trained before this repo existed, so its log lives under its own arch dir.
+    # Verified to be the published run -- epoch rows identical to logs/dit_xl/ep.txt,
+    # head 2,627,560 params (the Q=128 witness).
+    ("DiT", "DiT-XL/2"): "outputs/imagenet/dit_xl/linprobe_dit_xl_ep128_imagenet1k",
 }
-# The DiT run predates this repo and lives in the tree it was trained in, so its
-# location is site-specific: export EP_DIT_RUN to that run directory. Verified to
-# be the published run -- epoch rows identical to logs/dit_xl/ep.txt, head
-# 2,627,560 params (the Q=128 witness). Without it, DiT exports as missing.
-if os.environ.get("EP_DIT_RUN"):
-    PIN[("DiT", "DiT-XL/2")] = os.environ["EP_DIT_RUN"]
-else:
-    MISSING_DIT = "EP_DIT_RUN not set: the DiT-XL/2 run lives outside this repo"
-MISSING = {} if os.environ.get("EP_DIT_RUN") else {("DiT", "DiT-XL/2"): MISSING_DIT}
+MISSING = {}
 
 
 def loginfo(path):
